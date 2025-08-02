@@ -1,0 +1,165 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.19;
+
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
+
+contract AidChain is ERC721, Ownable {
+    using Counters for Counters.Counter;
+    
+    Counters.Counter private _donorTokenIds;
+    Counters.Counter private _recipientTokenIds;
+    
+    uint256 public constant AID_AMOUNT = 0.01 ether;
+    
+    struct AidRequest {
+        address recipient;
+        string reason;
+        uint256 timestamp;
+        bool approved;
+        bool claimed;
+    }
+    
+    struct Donation {
+        address donor;
+        uint256 amount;
+        uint256 timestamp;
+    }
+    
+    mapping(address => bool) public approvedRecipients;
+    mapping(address => bool) public hasClaimedAid;
+    mapping(address => bool) public hasDonated;
+    mapping(address => AidRequest) public aidRequests;
+    mapping(address => bool) public flaggedAddresses;
+    
+    Donation[] public donations;
+    address[] public aidRequestsList;
+    
+    uint256 public totalDonated;
+    
+    event DonationReceived(address indexed donor, uint256 amount, uint256 timestamp);
+    event AidRequested(address indexed recipient, string reason, uint256 timestamp);
+    event RecipientApproved(address indexed recipient, uint256 timestamp);
+    event AidClaimed(address indexed recipient, uint256 amount, uint256 timestamp);
+    event DonorNFTMinted(address indexed donor, uint256 tokenId);
+    event RecipientNFTMinted(address indexed recipient, uint256 tokenId);
+    event ApprovedByNFA(address indexed recipient, uint256 timestamp);
+    
+    constructor() ERC721("AidChain", "AID") {}
+    
+    function donate() external payable {
+        require(msg.value > 0, "Donation must be greater than 0");
+        
+        donations.push(Donation({
+            donor: msg.sender,
+            amount: msg.value,
+            timestamp: block.timestamp
+        }));
+        
+        totalDonated += msg.value;
+        hasDonated[msg.sender] = true;
+        
+        emit DonationReceived(msg.sender, msg.value, block.timestamp);
+    }
+    
+    function applyForAid(string memory reason) external {
+        require(bytes(reason).length > 0, "Reason cannot be empty");
+        require(aidRequests[msg.sender].recipient == address(0), "Already applied");
+        
+        aidRequests[msg.sender] = AidRequest({
+            recipient: msg.sender,
+            reason: reason,
+            timestamp: block.timestamp,
+            approved: false,
+            claimed: false
+        });
+        
+        aidRequestsList.push(msg.sender);
+        
+        // Auto-approval logic (NFA)
+        if (!hasClaimedAid[msg.sender] && !flaggedAddresses[msg.sender]) {
+            approvedRecipients[msg.sender] = true;
+            aidRequests[msg.sender].approved = true;
+            emit ApprovedByNFA(msg.sender, block.timestamp);
+        }
+        
+        emit AidRequested(msg.sender, reason, block.timestamp);
+    }
+    
+    function approveRecipient(address recipient) external onlyOwner {
+        require(aidRequests[recipient].recipient != address(0), "No aid request found");
+        
+        approvedRecipients[recipient] = true;
+        aidRequests[recipient].approved = true;
+        
+        emit RecipientApproved(recipient, block.timestamp);
+    }
+    
+    function claimAid() external {
+        require(approvedRecipients[msg.sender], "Not approved for aid");
+        require(!hasClaimedAid[msg.sender], "Already claimed aid");
+        require(address(this).balance >= AID_AMOUNT, "Insufficient contract balance");
+        
+        hasClaimedAid[msg.sender] = true;
+        aidRequests[msg.sender].claimed = true;
+        
+        payable(msg.sender).transfer(AID_AMOUNT);
+        
+        emit AidClaimed(msg.sender, AID_AMOUNT, block.timestamp);
+    }
+    
+    function getDonations() external view returns (Donation[] memory) {
+        return donations;
+    }
+    
+    function getAidRequests() external view returns (address[] memory) {
+        return aidRequestsList;
+    }
+    
+    function mintDonorNFT(address donor) external onlyOwner {
+        require(hasDonated[donor], "Address has not donated");
+        
+        _donorTokenIds.increment();
+        uint256 tokenId = _donorTokenIds.current();
+        
+        _mint(donor, tokenId);
+        
+        emit DonorNFTMinted(donor, tokenId);
+    }
+    
+    function mintRecipientNFT(address recipient) external onlyOwner {
+        require(hasClaimedAid[recipient], "Address has not claimed aid");
+        
+        _recipientTokenIds.increment();
+        uint256 tokenId = 10000 + _recipientTokenIds.current(); // Offset for recipient NFTs
+        
+        _mint(recipient, tokenId);
+        
+        emit RecipientNFTMinted(recipient, tokenId);
+    }
+    
+    function flagAddress(address addr) external onlyOwner {
+        flaggedAddresses[addr] = true;
+    }
+    
+    function unflagAddress(address addr) external onlyOwner {
+        flaggedAddresses[addr] = false;
+    }
+    
+    function withdraw() external onlyOwner {
+        payable(owner()).transfer(address(this).balance);
+    }
+    
+    function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
+        require(_exists(tokenId), "Token does not exist");
+        
+        if (tokenId <= 10000) {
+            // Donor NFT
+            return "https://ipfs.io/ipfs/QmDonorNFTMetadata";
+        } else {
+            // Recipient NFT
+            return "https://ipfs.io/ipfs/QmRecipientNFTMetadata";
+        }
+    }
+}
