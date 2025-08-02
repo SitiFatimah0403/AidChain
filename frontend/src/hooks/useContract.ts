@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import { ContractState, Donation, AidRequest } from '../types';
 
-const CONTRACT_ADDRESS = '0x1234567890123456789012345678901234567890'; // Replace with actual deployed address
+const CONTRACT_ADDRESS = '0x12345678901234567890123456789012345678'; // Replace with actual deployed address (GUNA .ENV)
 const CONTRACT_ABI = [
   "function donate() external payable",
   "function applyForAid(string memory reason) external",
