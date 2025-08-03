@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { Heart, Award, TrendingUp, Users, Gift } from 'lucide-react';
-import { useWallet } from '../hooks/useWallet';
+import { useAccount, useWalletClient } from 'wagmi';
 import { useContract } from '../hooks/useContract';
 
 export const DonorDashboard: React.FC = () => {
-  const { wallet, signer } = useWallet();
-  const { contractState, loading, donate, mintDonorNFT } = useContract(signer, wallet.address);
+  const { address, isConnected } = useAccount();
+  const { data: walletClient } = useWalletClient();
+  const signer = walletClient;
+
+  const { contractState, loading, donate, mintDonorNFT } = useContract(signer, address);
   const [donationAmount, setDonationAmount] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 

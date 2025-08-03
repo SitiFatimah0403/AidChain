@@ -1,171 +1,147 @@
-import { useState, useEffect } from 'react';
-import { ethers } from 'ethers';
-import { ContractState, Donation, AidRequest } from '../types';
+import { useAccount } from 'wagmi';
+import { useContractRead, useContractWrite } from 'wagmi';
+import { useTransactionReceipt } from 'wagmi';
+import { parseEther } from 'viem';
+import ABI from '../abi/AidChain.json'; // or relative path
+import type { ContractState } from '../types';
 
-const CONTRACT_ADDRESS = '0x12345678901234567890123456789012345678'; // Replace with actual deployed address (GUNA .ENV)
-const CONTRACT_ABI = [
-  "function donate() external payable",
-  "function applyForAid(string memory reason) external",
-  "function approveRecipient(address recipient) external",
-  "function claimAid() external",
-  "function getDonations() external view returns (tuple(address donor, uint256 amount, uint256 timestamp)[])",
-  "function getAidRequests() external view returns (address[])",
-  "function totalDonated() external view returns (uint256)",
-  "function aidRequests(address) external view returns (address recipient, string reason, uint256 timestamp, bool approved, bool claimed)",
-  "function hasDonated(address) external view returns (bool)",
-  "function approvedRecipients(address) external view returns (bool)",
-  "function hasClaimedAid(address) external view returns (bool)",
-  "function mintDonorNFT(address donor) external",
-  "function mintRecipientNFT(address recipient) external",
-  "event DonationReceived(address indexed donor, uint256 amount, uint256 timestamp)",
-  "event AidRequested(address indexed recipient, string reason, uint256 timestamp)",
-  "event RecipientApproved(address indexed recipient, uint256 timestamp)",
-  "event AidClaimed(address indexed recipient, uint256 amount, uint256 timestamp)",
-  "event ApprovedByNFA(address indexed recipient, uint256 timestamp)"
-];
+const CONTRACT_ADDRESS = '0x1234…'; // your deployed address
 
-export const useContract = (signer: ethers.JsonRpcSigner | null, userAddress: string | null) => {
-  const [contractState, setContractState] = useState<ContractState>({
-    totalDonated: '0',
-    donations: [],
-    aidRequests: [],
-    userHasDonated: false,
-    userHasApplied: false,
-    userIsApproved: false,
-    userHasClaimed: false,
+export const useContract = (userAddress?: `0x${string}`) => {
+  // Reads
+  const totalDonated = useContractRead({
+    address: CONTRACT_ADDRESS,
+    abi: ABI,
+    functionName: 'totalDonated',
+    watch: true,
   });
 
-  const [contract, setContract] = useState<ethers.Contract | null>(null);
-  const [loading, setLoading] = useState(false);
+  const getDonations = useContractRead({
+    address: CONTRACT_ADDRESS,
+    abi: ABI,
+    functionName: 'getDonations',
+    watch: true,
+  });
 
-  useEffect(() => {
-    if (signer) {
-      const contractInstance = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-      setContract(contractInstance);
-      loadContractData(contractInstance);
-    }
-  }, [signer, userAddress]);
+  const aidRequestsList = useContractRead({
+    address: CONTRACT_ADDRESS,
+    abi: ABI,
+    functionName: 'getAidRequests',
+    watch: true,
+  });
 
-  const loadContractData = async (contractInstance: ethers.Contract) => {
-    try {
-      setLoading(true);
-      
-      const totalDonated = await contractInstance.totalDonated();
-      const donations = await contractInstance.getDonations();
-      const aidRequestAddresses = await contractInstance.getAidRequests();
-      
-      // Load aid requests details
-      const aidRequests: AidRequest[] = [];
-      for (const address of aidRequestAddresses) {
-        const request = await contractInstance.aidRequests(address);
-        aidRequests.push({
-          recipient: request.recipient,
-          reason: request.reason,
-          timestamp: Number(request.timestamp),
-          approved: request.approved,
-          claimed: request.claimed,
-        });
-      }
+  const userReq = useContractRead({
+    address: CONTRACT_ADDRESS,
+    abi: ABI,
+    functionName: 'aidRequests',
+    args: [userAddress!],
+    enabled: Boolean(userAddress),
+    watch: true,
+  });
 
-      let userHasDonated = false;
-      let userHasApplied = false;
-      let userIsApproved = false;
-      let userHasClaimed = false;
+  const hasDonated = useContractRead({
+    address: CONTRACT_ADDRESS,
+    abi: ABI,
+    functionName: 'hasDonated',
+    args: [userAddress!],
+    enabled: Boolean(userAddress),
+    watch: true,
+  });
 
-      if (userAddress) {
-        userHasDonated = await contractInstance.hasDonated(userAddress);
-        userIsApproved = await contractInstance.approvedRecipients(userAddress);
-        userHasClaimed = await contractInstance.hasClaimedAid(userAddress);
-        
-        const userRequest = await contractInstance.aidRequests(userAddress);
-        userHasApplied = userRequest.recipient !== ethers.ZeroAddress;
-      }
+  const isApproved = useContractRead({
+    address: CONTRACT_ADDRESS,
+    abi: ABI,
+    functionName: 'approvedRecipients',
+    args: [userAddress!],
+    enabled: Boolean(userAddress),
+    watch: true,
+  });
 
-      setContractState({
-        totalDonated: ethers.formatEther(totalDonated),
-        donations: donations.map((d: any) => ({
-          donor: d.donor,
-          amount: ethers.formatEther(d.amount),
-          timestamp: Number(d.timestamp),
-        })),
-        aidRequests,
-        userHasDonated,
-        userHasApplied,
-        userIsApproved,
-        userHasClaimed,
-      });
-    } catch (error) {
-      console.error('Error loading contract data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const hasClaimed = useContractRead({
+    address: CONTRACT_ADDRESS,
+    abi: ABI,
+    functionName: 'hasClaimedAid',
+    args: [userAddress!],
+    enabled: Boolean(userAddress),
+    watch: true,
+  });
 
-  const donate = async (amount: string) => {
-    if (!contract) throw new Error('Contract not initialized');
-    
-    const tx = await contract.donate({
-      value: ethers.parseEther(amount)
-    });
-    await tx.wait();
-    
-    // Reload data
-    await loadContractData(contract);
-  };
+  // Writes
+  const donate = useContractWrite({
+    address: CONTRACT_ADDRESS,
+    abi: ABI,
+    functionName: 'donate',
+  });
+  const apply = useContractWrite({
+    address: CONTRACT_ADDRESS,
+    abi: ABI,
+    functionName: 'applyForAid',
+  });
+  const approve = useContractWrite({
+    address: CONTRACT_ADDRESS,
+    abi: ABI,
+    functionName: 'approveRecipient',
+  });
+  const claim = useContractWrite({
+    address: CONTRACT_ADDRESS,
+    abi: ABI,
+    functionName: 'claimAid',
+  });
+  const mintDonor = useContractWrite({
+    address: CONTRACT_ADDRESS,
+    abi: ABI,
+    functionName: 'mintDonorNFT',
+    args: [userAddress!],
+  });
+  const mintRecipient = useContractWrite({
+    address: CONTRACT_ADDRESS,
+    abi: ABI,
+    functionName: 'mintRecipientNFT',
+    args: [userAddress!],
+  });
 
-  const applyForAid = async (reason: string) => {
-    if (!contract) throw new Error('Contract not initialized');
-    
-    const tx = await contract.applyForAid(reason);
-    await tx.wait();
-    
-    // Reload data
-    await loadContractData(contract);
-  };
+  // Track status
+  const donateReceipt = useTransactionReceipt({ hash: donate.data?.hash });
+  const applyReceipt = useTransactionReceipt({ hash: apply.data?.hash });
+  const approveReceipt = useTransactionReceipt({ hash: approve.data?.hash });
+  const claimReceipt = useTransactionReceipt({ hash: claim.data?.hash });
+  const mintDonorReceipt = useTransactionReceipt({ hash: mintDonor.data?.hash });
+  const mintRecipientReceipt = useTransactionReceipt({ hash: mintRecipient.data?.hash });
 
-  const claimAid = async () => {
-    if (!contract) throw new Error('Contract not initialized');
-    
-    const tx = await contract.claimAid();
-    await tx.wait();
-    
-    // Reload data
-    await loadContractData(contract);
-  };
-
-  const approveRecipient = async (recipient: string) => {
-    if (!contract) throw new Error('Contract not initialized');
-    
-    const tx = await contract.approveRecipient(recipient);
-    await tx.wait();
-    
-    // Reload data
-    await loadContractData(contract);
-  };
-
-  const mintDonorNFT = async (donor: string) => {
-    if (!contract) throw new Error('Contract not initialized');
-    
-    const tx = await contract.mintDonorNFT(donor);
-    await tx.wait();
-  };
-
-  const mintRecipientNFT = async (recipient: string) => {
-    if (!contract) throw new Error('Contract not initialized');
-    
-    const tx = await contract.mintRecipientNFT(recipient);
-    await tx.wait();
+  // Derived contract state
+  const contractState: ContractState = {
+    totalDonated: totalDonated.data ? String(Number(totalDonated.data) / 1e18) : '0',
+    donations: (getDonations.data ?? []) as any,
+    aidRequests: (aidRequestsList.data ?? []).map((addr: string) => {
+      const req = userReq.data;
+      return {
+        recipient: addr,
+        reason: req?.reason ?? '',
+        timestamp: req?.timestamp ? Number(req.timestamp) : 0,
+        approved: isApproved.data ?? false,
+        claimed: hasClaimed.data ?? false,
+      };
+    }),
+    userHasDonated: hasDonated.data ?? false,
+    userHasApplied: Boolean(userReq.data?.recipient && userReq.data.recipient !== '0x0000000000000000000000000000000000000000'),
+    userIsApproved: isApproved.data ?? false,
+    userHasClaimed: hasClaimed.data ?? false,
   };
 
   return {
     contractState,
-    loading,
-    donate,
-    applyForAid,
-    claimAid,
-    approveRecipient,
-    mintDonorNFT,
-    mintRecipientNFT,
-    refreshData: () => contract && loadContractData(contract),
+    loading: totalDonated.isLoading || getDonations.isLoading || aidRequestsList.isLoading,
+    donate: (amount: string) => donate.write?.({ value: parseEther(amount) }),
+    donateLoading: donate.isLoading || donateReceipt.isLoading,
+    applyForAid: (reason: string) => apply.write?.({ args: [reason] }),
+    applyLoading: apply.isLoading || applyReceipt.isLoading,
+    approveRecipient: (addr: string) => approve.write?.({ args: [addr] }),
+    approveLoading: approve.isLoading || approveReceipt.isLoading,
+    claimAid: () => claim.write?.(),
+    claimLoading: claim.isLoading || claimReceipt.isLoading,
+    mintDonorNFT: () => mintDonor.write?.(),
+    mintDonorLoading: mintDonor.isLoading || mintDonorReceipt.isLoading,
+    mintRecipientNFT: () => mintRecipient.write?.(),
+    mintRecipientLoading: mintRecipient.isLoading || mintRecipientReceipt.isLoading,
   };
 };
