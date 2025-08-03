@@ -45,6 +45,9 @@ contract AidChain is ERC721, Ownable {
     event DonorNFTMinted(address indexed donor, uint256 tokenId);
     event RecipientNFTMinted(address indexed recipient, uint256 tokenId);
     event ApprovedByNFA(address indexed recipient, uint256 timestamp);
+    event ApprovedByNFA(address indexed recipient, uint256 timestamp);
+    event RejectedByNFA(address indexed recipient, string reason); // newly added by ain
+
     
     constructor() ERC721("AidChain", "AID") {}
     
@@ -63,10 +66,12 @@ contract AidChain is ERC721, Ownable {
         emit DonationReceived(msg.sender, msg.value, block.timestamp);
     }
     
+    //FUNCTION - for users to applyForAid
     function applyForAid(string memory reason) external {
         require(bytes(reason).length > 0, "Reason cannot be empty");
-        require(aidRequests[msg.sender].recipient == address(0), "Already applied");
+        require(aidRequests[msg.sender].recipient == address(0), "Already applied");    //nak elak same user apply multiple times
         
+        // First step - simpan dulu detail of user's aid request
         aidRequests[msg.sender] = AidRequest({
             recipient: msg.sender,
             reason: reason,
@@ -75,15 +80,24 @@ contract AidChain is ERC721, Ownable {
             claimed: false
         });
         
+        // Second step - simpan user's wallet address dan info tadi (in order)
         aidRequestsList.push(msg.sender);
-        
-        // Auto-approval logic (NFA)
-        if (!hasClaimedAid[msg.sender] && !flaggedAddresses[msg.sender]) {
+
+        // Third step - ni as NFA (which will check if dia pernah appy aids, dia akan auto approve - kalau dia approve, kita boleh tengok apa reason dia approve)
+        // isEligible will check if 1) user has not already claimed, 2) suer is not flagged, 3) reason tak lebih 20 chars (double check)
+        bool isEligible = !hasClaimedAid[msg.sender] &&
+                        !flaggedAddresses[msg.sender] &&
+                        bytes(reason).length > 20; // Make sure reason is at least 20 chars
+
+        if (isEligible) {
             approvedRecipients[msg.sender] = true;
             aidRequests[msg.sender].approved = true;
             emit ApprovedByNFA(msg.sender, block.timestamp);
+        } else {
+            emit RejectedByNFA(msg.sender, "NFA rejected: Ineligible or poor reason");
         }
-        
+
+        // Fourth step - takkesahla approve or rejected, still kena log the result after user submit request (ni penting dalam blockchain)
         emit AidRequested(msg.sender, reason, block.timestamp);
     }
     
