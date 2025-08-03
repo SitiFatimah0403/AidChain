@@ -2,7 +2,6 @@
 AidChain is a blockchain-based donation and aid distribution platform built for transparency,
 automation, and trust. It empowers donors to directly contribute crypto to verified aid recipients in 
 crisis zones while leveraging smart contracts, NFTs, and NFAs (Non-Fungible Agents) for automation and accountability.
-=======
 automation, and trust. It empowers donors to directly contribute crypto to verified aid recipients 
 in crisis zones while leveraging smart contracts, NFTs, and NFAs (Non-Fungible Agents) for automation and accountability.
 
