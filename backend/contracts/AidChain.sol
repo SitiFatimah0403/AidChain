@@ -4,6 +4,7 @@ pragma solidity ^0.8.19;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
+import "./AidBadgeNFT.sol"; // Importing AidBadgeNFT for minting badges
 
 
 contract AidChain is ERC721, Ownable {
@@ -13,6 +14,12 @@ contract AidChain is ERC721, Ownable {
     Counters.Counter private _recipientTokenIds;
     
     uint256 public constant AID_AMOUNT = 0.01 ether;
+    AidBadgeNFT public badgeNFT; // Instance of AidBadgeNFT contract
+
+    constructor(address badgeContractAddress) ERC721("AidChain", "AID") {
+    badgeNFT = AidBadgeNFT(badgeContractAddress);  // Initialize the AidBadgeNFT contract
+    }
+
     
     struct AidRequest {
         address recipient;
@@ -48,8 +55,6 @@ contract AidChain is ERC721, Ownable {
     event ApprovedByNFA(address indexed recipient, uint256 timestamp);
     event RejectedByNFA(address indexed recipient, string reason); // newly added by ain
 
-    
-    constructor() ERC721("AidChain", "AID") {}
     
     function donate() external payable {
         require(msg.value > 0, "Donation must be greater than 0");
@@ -131,27 +136,28 @@ contract AidChain is ERC721, Ownable {
         return aidRequestsList;
     }
     
+    //For minting Donor NFT
     function mintDonorNFT(address donor) external onlyOwner {
-        require(hasDonated[donor], "Address has not donated");
-        
-        _donorTokenIds.increment();
-        uint256 tokenId = _donorTokenIds.current();
-        
-        _mint(donor, tokenId);
-        
-        emit DonorNFTMinted(donor, tokenId);
-    }
+    require(hasDonated[donor], "Address has not donated");
+
+    string memory donorURI = "https://ipfs.io/ipfs/QmDonorNFTMetadata";
+    badgeNFT.mintBadge(donor, donorURI);
+
+    emit DonorNFTMinted(donor, block.timestamp);
+}
+
     
-    function mintRecipientNFT(address recipient) external onlyOwner {
-        require(hasClaimedAid[recipient], "Address has not claimed aid");
-        
-        _recipientTokenIds.increment();
-        uint256 tokenId = 10000 + _recipientTokenIds.current(); // Offset for recipient NFTs
-        
-        _mint(recipient, tokenId);
-        
-        emit RecipientNFTMinted(recipient, tokenId);
-    }
+    //For minting Recipient NFT
+  function mintRecipientNFT(address recipient) external onlyOwner {
+    require(hasClaimedAid[recipient], "Address has not claimed aid");
+
+    string memory recipientURI = "https://ipfs.io/ipfs/QmRecipientNFTMetadata";
+    badgeNFT.mintBadge(recipient, recipientURI);
+
+    emit RecipientNFTMinted(recipient, block.timestamp);
+}
+
+
     
     function flagAddress(address addr) external onlyOwner {
         flaggedAddresses[addr] = true;
