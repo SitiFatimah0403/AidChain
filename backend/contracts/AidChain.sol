@@ -31,6 +31,7 @@ contract AidChain is ERC721, Ownable {
         uint256 timestamp;
         bool approved;
         bool claimed;
+        string location;    //untuk tambah location applicant
     }
     
     struct Donation {
@@ -86,7 +87,8 @@ contract AidChain is ERC721, Ownable {
             reason: reason,
             timestamp: block.timestamp,
             approved: false,
-            claimed: false
+            claimed: false,
+            location: location
         });
         
         // Second step - simpan user's wallet address dan info tadi (in order)

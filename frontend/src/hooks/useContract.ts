@@ -113,10 +113,10 @@ export const useContract = (signer: ethers.JsonRpcSigner | null, userAddress: st
     await loadContractData(contract);
   };
 
-  const applyForAid = async (reason: string) => {
+  const applyForAid = async (reason: string, location: string) => {
     if (!contract) throw new Error('Contract not initialized');
     
-    const tx = await contract.applyForAid(reason);
+    const tx = await contract.applyForAid(reason, location);
     await tx.wait();
     
     // Reload data
