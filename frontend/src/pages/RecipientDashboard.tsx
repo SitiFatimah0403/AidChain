@@ -8,6 +8,7 @@ export const RecipientDashboard: React.FC = () => {
   const { contractState, loading, applyForAid, claimAid, mintRecipientNFT } = useContract(signer, wallet.address);
   const [aidReason, setAidReason] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [location, setLocation] = useState('');
 
   const handleApplyForAid = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -15,13 +16,28 @@ export const RecipientDashboard: React.FC = () => {
 
     try {
       setIsSubmitting(true);
-      await applyForAid(aidReason);
-      setAidReason('');
-      alert('Aid application submitted successfully!');
+
+      // dapatkan user punya location
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const lat = position.coords.latitude.toFixed(6);
+          const lon = position.coords.longitude.toFixed(6);
+          const locationStr = `${lat},${lon}`;
+
+          // Now send reason + location to smart contract
+          await applyForAid(aidReason, locationStr);
+          setAidReason('');
+          alert('Aid application submitted successfully!');
+        },
+        (error) => {
+          console.error("Location access denied", error);
+          alert("Please enable location to submit your application.");
+          setIsSubmitting(false);
+        }
+      );
     } catch (error) {
       console.error('Aid application failed:', error);
       alert('Aid application failed. Please try again.');
-    } finally {
       setIsSubmitting(false);
     }
   };

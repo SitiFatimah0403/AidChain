@@ -100,6 +100,7 @@ export const useContract = (userAddress?: `0x${string}`) => {
     args: [userAddress!],
   });
 
+<<<<<<< HEAD
   // Track status
   const donateReceipt = useTransactionReceipt({ hash: donate.data?.hash });
   const applyReceipt = useTransactionReceipt({ hash: apply.data?.hash });
@@ -107,6 +108,17 @@ export const useContract = (userAddress?: `0x${string}`) => {
   const claimReceipt = useTransactionReceipt({ hash: claim.data?.hash });
   const mintDonorReceipt = useTransactionReceipt({ hash: mintDonor.data?.hash });
   const mintRecipientReceipt = useTransactionReceipt({ hash: mintRecipient.data?.hash });
+=======
+  const applyForAid = async (reason: string, location: string) => {
+    if (!contract) throw new Error('Contract not initialized');
+    
+    const tx = await contract.applyForAid(reason, location);
+    await tx.wait();
+    
+    // Reload data
+    await loadContractData(contract);
+  };
+>>>>>>> 8f4a30a203a54b1720c85a26ed0bbed56f95330c
 
   // Derived contract state
   const contractState: ContractState = {
