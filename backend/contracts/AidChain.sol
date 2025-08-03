@@ -46,7 +46,6 @@ contract AidChain is ERC721, Ownable {
     event DonorNFTMinted(address indexed donor, uint256 tokenId);
     event RecipientNFTMinted(address indexed recipient, uint256 tokenId);
     event ApprovedByNFA(address indexed recipient, uint256 timestamp);
-    event ApprovedByNFA(address indexed recipient, uint256 timestamp);
     event RejectedByNFA(address indexed recipient, string reason); // newly added by ain
 
     
