@@ -1,159 +1,155 @@
-import { useAccount } from 'wagmi';
-import { useContractRead, useContractWrite } from 'wagmi';
-import { useTransactionReceipt } from 'wagmi';
+import { useAccount, useReadContract } from 'wagmi';
+import { writeContract } from '@wagmi/core';
 import { parseEther } from 'viem';
-import ABI from '../abi/AidChain.json'; // or relative path
-import type { ContractState } from '../types';
+import type { Abi } from 'viem';
+import AidChainAbiJson from '@/contracts/AidChain.json';
+import type { ContractState, Donation, AidRequest } from '@/types';
+import { config } from '@/wagmisetup'; 
 
-const CONTRACT_ADDRESS = '0x1234…'; // your deployed address
 
-export const useContract = (userAddress?: `0x${string}`) => {
-  // Reads
-  const totalDonated = useContractRead({
+const CONTRACT_ADDRESS = import.meta.env.VITE_AID_CONTRACT as `0x${string}`;
+const AidChainAbi = AidChainAbiJson as unknown as Abi;
+
+export const useContract = () => {
+  const { address: userAddress } = useAccount();
+
+  // ===== READ CONTRACTS =====
+  const totalDonated = useReadContract({
     address: CONTRACT_ADDRESS,
-    abi: ABI,
+    abi: AidChainAbi,
     functionName: 'totalDonated',
-    watch: true,
   });
 
-  const getDonations = useContractRead({
+  const getDonations = useReadContract({
     address: CONTRACT_ADDRESS,
-    abi: ABI,
+    abi: AidChainAbi,
     functionName: 'getDonations',
-    watch: true,
   });
 
-  const aidRequestsList = useContractRead({
+  const aidRequestsList = useReadContract({
     address: CONTRACT_ADDRESS,
-    abi: ABI,
+    abi: AidChainAbi,
     functionName: 'getAidRequests',
-    watch: true,
   });
 
-  const userReq = useContractRead({
+  const userReq = useReadContract({
     address: CONTRACT_ADDRESS,
-    abi: ABI,
+    abi: AidChainAbi,
     functionName: 'aidRequests',
-    args: [userAddress!],
-    enabled: Boolean(userAddress),
-    watch: true,
+    args: userAddress ? [userAddress] : undefined,
+    query: {
+      enabled: !!userAddress,
+    },
   });
 
-  const hasDonated = useContractRead({
+  const isApproved = useReadContract({
     address: CONTRACT_ADDRESS,
-    abi: ABI,
-    functionName: 'hasDonated',
-    args: [userAddress!],
-    enabled: Boolean(userAddress),
-    watch: true,
-  });
-
-  const isApproved = useContractRead({
-    address: CONTRACT_ADDRESS,
-    abi: ABI,
+    abi: AidChainAbi,
     functionName: 'approvedRecipients',
-    args: [userAddress!],
-    enabled: Boolean(userAddress),
-    watch: true,
+    args: userAddress ? [userAddress] : undefined,
+    query: {
+      enabled: !!userAddress,
+    },
   });
 
-  const hasClaimed = useContractRead({
+  const hasClaimed = useReadContract({
     address: CONTRACT_ADDRESS,
-    abi: ABI,
+    abi: AidChainAbi,
     functionName: 'hasClaimedAid',
-    args: [userAddress!],
-    enabled: Boolean(userAddress),
-    watch: true,
+    args: userAddress ? [userAddress] : undefined,
+    query: {
+      enabled: !!userAddress,
+    },
   });
 
-  // Writes
-  const donate = useContractWrite({
+  const hasDonated = useReadContract({
     address: CONTRACT_ADDRESS,
-    abi: ABI,
-    functionName: 'donate',
+    abi: AidChainAbi,
+    functionName: 'hasDonated',
+    args: userAddress ? [userAddress] : undefined,
+    query: {
+      enabled: !!userAddress,
+    },
   });
-  const apply = useContractWrite({
-    address: CONTRACT_ADDRESS,
-    abi: ABI,
-    functionName: 'applyForAid',
-  });
-  const approve = useContractWrite({
-    address: CONTRACT_ADDRESS,
-    abi: ABI,
-    functionName: 'approveRecipient',
-  });
-  const claim = useContractWrite({
-    address: CONTRACT_ADDRESS,
-    abi: ABI,
-    functionName: 'claimAid',
-  });
-  const mintDonor = useContractWrite({
-    address: CONTRACT_ADDRESS,
-    abi: ABI,
-    functionName: 'mintDonorNFT',
-    args: [userAddress!],
-  });
-  const mintRecipient = useContractWrite({
-    address: CONTRACT_ADDRESS,
-    abi: ABI,
-    functionName: 'mintRecipientNFT',
-    args: [userAddress!],
-  });
-
-<<<<<<< HEAD
-  // Track status
-  const donateReceipt = useTransactionReceipt({ hash: donate.data?.hash });
-  const applyReceipt = useTransactionReceipt({ hash: apply.data?.hash });
-  const approveReceipt = useTransactionReceipt({ hash: approve.data?.hash });
-  const claimReceipt = useTransactionReceipt({ hash: claim.data?.hash });
-  const mintDonorReceipt = useTransactionReceipt({ hash: mintDonor.data?.hash });
-  const mintRecipientReceipt = useTransactionReceipt({ hash: mintRecipient.data?.hash });
-=======
-  const applyForAid = async (reason: string, location: string) => {
-    if (!contract) throw new Error('Contract not initialized');
-    
-    const tx = await contract.applyForAid(reason, location);
-    await tx.wait();
-    
-    // Reload data
-    await loadContractData(contract);
-  };
->>>>>>> 8f4a30a203a54b1720c85a26ed0bbed56f95330c
-
-  // Derived contract state
-  const contractState: ContractState = {
-    totalDonated: totalDonated.data ? String(Number(totalDonated.data) / 1e18) : '0',
-    donations: (getDonations.data ?? []) as any,
-    aidRequests: (aidRequestsList.data ?? []).map((addr: string) => {
-      const req = userReq.data;
-      return {
-        recipient: addr,
-        reason: req?.reason ?? '',
-        timestamp: req?.timestamp ? Number(req.timestamp) : 0,
-        approved: isApproved.data ?? false,
-        claimed: hasClaimed.data ?? false,
-      };
-    }),
-    userHasDonated: hasDonated.data ?? false,
-    userHasApplied: Boolean(userReq.data?.recipient && userReq.data.recipient !== '0x0000000000000000000000000000000000000000'),
-    userIsApproved: isApproved.data ?? false,
-    userHasClaimed: hasClaimed.data ?? false,
-  };
 
   return {
-    contractState,
-    loading: totalDonated.isLoading || getDonations.isLoading || aidRequestsList.isLoading,
-    donate: (amount: string) => donate.write?.({ value: parseEther(amount) }),
-    donateLoading: donate.isLoading || donateReceipt.isLoading,
-    applyForAid: (reason: string) => apply.write?.({ args: [reason] }),
-    applyLoading: apply.isLoading || applyReceipt.isLoading,
-    approveRecipient: (addr: string) => approve.write?.({ args: [addr] }),
-    approveLoading: approve.isLoading || approveReceipt.isLoading,
-    claimAid: () => claim.write?.(),
-    claimLoading: claim.isLoading || claimReceipt.isLoading,
-    mintDonorNFT: () => mintDonor.write?.(),
-    mintDonorLoading: mintDonor.isLoading || mintDonorReceipt.isLoading,
-    mintRecipientNFT: () => mintRecipient.write?.(),
-    mintRecipientLoading: mintRecipient.isLoading || mintRecipientReceipt.isLoading,
+    // ====Reading state====
+    contractState: {
+      totalDonated: totalDonated.data ? String(Number(totalDonated.data) / 1e18) : '0',
+      donations: getDonations.data ?? [],
+      aidRequests: ((aidRequestsList.data as string[] ?? [])).map((addr: string) => ({
+        recipient: addr,
+        reason: (userReq.data as AidRequest)?.reason ?? '',
+        timestamp: (userReq.data as AidRequest)?.timestamp ? Number((userReq.data as AidRequest).timestamp) : 0,
+        approved: isApproved.data ?? false,
+        claimed: hasClaimed.data ?? false,
+      })),
+      userHasDonated: hasDonated.data ?? false,
+      userHasApplied:
+        !!(userReq.data as AidRequest)?.recipient &&
+        (userReq.data as AidRequest)?.recipient !== '0x0000000000000000000000000000000000000000', //nanti tukar
+      userIsApproved: isApproved.data ?? false,
+      userHasClaimed: hasClaimed.data ?? false,
+    },
+
+    // ====Writing actions====== 
+    donate: async (amount: string) =>
+      await writeContract(config, {
+      abi: AidChainAbi,
+      address: CONTRACT_ADDRESS,
+      functionName: 'donate',
+      account: userAddress,
+      value: parseEther(amount),
+      chain: config.chains[0], //use sepolia chain je
+    }),
+
+    applyForAid: async (reason: string) =>
+      await writeContract(config, {
+        address: CONTRACT_ADDRESS,
+        abi: AidChainAbi,
+        functionName: 'applyForAid',
+        args: [reason],
+        account: userAddress!,
+        chain: config.chains[0],
+      }),
+
+    approveRecipient: async (recipient: string) =>
+      await writeContract(config, {
+        address: CONTRACT_ADDRESS,
+        abi: AidChainAbi,
+        functionName: 'approveRecipient',
+        args: [recipient],
+        account: userAddress!,
+        chain: config.chains[0], // Add the chain property
+      }),
+
+    claimAid: async () =>
+      await writeContract(config, {
+        address: CONTRACT_ADDRESS,
+        abi: AidChainAbi,
+        functionName: 'claimAid',
+        account: userAddress!,
+        chain: config.chains[0],
+      }),
+
+    mintDonorNFT: async () =>
+      await writeContract(config, {
+        address: CONTRACT_ADDRESS,
+        abi: AidChainAbi,
+        functionName: 'mintDonorNFT',
+        args: [userAddress!],
+        account: userAddress!,
+        chain: config.chains[0],
+      }),
+
+    mintRecipientNFT: async () =>
+      await writeContract(config, {
+        address: CONTRACT_ADDRESS,
+        abi: AidChainAbi,
+        functionName: 'mintRecipientNFT',
+        args: [userAddress!],
+        account: userAddress!,
+        chain: config.chains[0],
+      }),
   };
 };
