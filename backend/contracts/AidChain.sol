@@ -13,7 +13,11 @@ contract AidChain is ERC721, Ownable {
     Counters.Counter private _donorTokenIds;
     Counters.Counter private _recipientTokenIds;
     
-    uint256 public constant AID_AMOUNT = 0.01 ether;
+    uint256 public currentCycleStart;     //utk create duration
+    uint256 public donationCycleDuration = 14 days;
+    address public activeRecipient;
+    bool public cycleClaimed;
+
     AidBadgeNFT public badgeNFT; // Instance of AidBadgeNFT contract
 
     constructor(address badgeContractAddress) ERC721("AidChain", "AID") {
@@ -115,17 +119,19 @@ contract AidChain is ERC721, Ownable {
         emit RecipientApproved(recipient, block.timestamp);
     }
     
-    function claimAid() external {
+    function claimAid() external {  //recipient can claim after 14days 
         require(approvedRecipients[msg.sender], "Not approved for aid");
         require(!hasClaimedAid[msg.sender], "Already claimed aid");
-        require(address(this).balance >= AID_AMOUNT, "Insufficient contract balance");
-        
+        require(block.timestamp >= currentCycleStart + donationCycleDuration, "Wait until cycle ends");
+
+        cycleClaimed = true;
         hasClaimedAid[msg.sender] = true;
         aidRequests[msg.sender].claimed = true;
         
-        payable(msg.sender).transfer(AID_AMOUNT);
+        uint256 payout = address(this).balance;
+        payable(msg.sender).transfer(payout);
         
-        emit AidClaimed(msg.sender, AID_AMOUNT, block.timestamp);
+        emit AidClaimed(msg.sender, payout, block.timestamp);
     }
     
     function getDonations() external view returns (Donation[] memory) {
