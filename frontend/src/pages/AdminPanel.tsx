@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Shield, Users, CheckCircle, XCircle, AlertTriangle, Gift } from 'lucide-react';
-import { useContract } from '../hooks/useContract';
 import { useContract } from '@/hooks/useContract';
 import { useAccount } from 'wagmi';
 
