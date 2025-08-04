@@ -8,8 +8,9 @@ import { config } from '@/wagmisetup';
 import { useMemo, useEffect, useState } from 'react';
 
 const CONTRACT_ADDRESS = import.meta.env.VITE_AID_CONTRACT as `0x${string}`;
-const AidChainAbi = AidChainAbiJson as unknown as Abi;
+const AidChainAbi = AidChainAbiJson as unknown as Abi; // Cast the imported JSON ABI to the Abi type
 
+// This custom hook provides functions to interact with the AidChain smart contract.
 export const useContract = () => {
   const { address: userAddress } = useAccount();
 
@@ -17,25 +18,25 @@ export const useContract = () => {
   const totalDonated = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: AidChainAbi,
-    functionName: 'totalDonated',
+    functionName: 'totalDonated', //call totalDonated function from the contract
   });
 
   const getDonations = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: AidChainAbi,
-    functionName: 'getDonations',
+    functionName: 'getDonations', //call getDonations function from the contract
   });
 
   const aidRequestsList = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: AidChainAbi,
-    functionName: 'getAidRequests',
+    functionName: 'getAidRequests', //call getAidRequests function from the contract
   });
 
   const userReq = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: AidChainAbi,
-    functionName: 'aidRequests',
+    functionName: 'aidRequests', //call aidRequests function from the contract
     args: userAddress ? [userAddress] : undefined,
     query: { enabled: !!userAddress },
   });
@@ -43,7 +44,7 @@ export const useContract = () => {
   const isApproved = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: AidChainAbi,
-    functionName: 'approvedRecipients',
+    functionName: 'approvedRecipients', //call approvedRecipients function from the contract
     args: userAddress ? [userAddress] : undefined,
     query: { enabled: !!userAddress },
   });
@@ -51,7 +52,7 @@ export const useContract = () => {
   const hasClaimed = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: AidChainAbi,
-    functionName: 'hasClaimedAid',
+    functionName: 'hasClaimedAid', //call hasClaimedAid function from the contract
     args: userAddress ? [userAddress] : undefined,
     query: { enabled: !!userAddress },
   });
@@ -59,7 +60,7 @@ export const useContract = () => {
   const hasDonated = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: AidChainAbi,
-    functionName: 'hasDonated',
+    functionName: 'hasDonated', //call hasDonated function from the contract
     args: userAddress ? [userAddress] : undefined,
     query: { enabled: !!userAddress },
   });
@@ -150,7 +151,7 @@ export const useContract = () => {
     await writeContract(config, {
       abi: AidChainAbi,
       address: CONTRACT_ADDRESS,
-      functionName: 'donate',
+      functionName: 'donate', //send donation to the contract
       account: userAddress,
       value: parseEther(amount),
       chain: config.chains[0],

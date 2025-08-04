@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { Heart, Shield, Award, Users, TrendingUp, Globe } from 'lucide-react';
 import { useAccount } from 'wagmi';
 import { ConnectWalletButton } from '@/components/connectWalletButton';
-//import { useBadgeContract } from '@/hooks/useBadgeContract';
+import { useBadgeContract } from '@/hooks/useBadgeContract';
+
 
 
 

@@ -5,3 +5,9 @@
     { "path": "./tsconfig.node.json" }
   ]
 }
+
+// This is a TypeScript configuration file for a frontend project.
+// It specifies the files and references to other TypeScript configuration files.
+// The `files` array is empty, indicating no specific files are included directly.
+// The `references` array includes two paths: one for the application configuration (`tsconfig.app.json`) and one for the Node configuration (`tsconfig.node.json`).
+
