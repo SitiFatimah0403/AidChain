@@ -1,4 +1,7 @@
 {
+  // This is a TypeScript configuration file for a frontend application.
+  // It specifies the compiler options and includes the source files for the application.
+  // The `compilerOptions` object defines various settings for the TypeScript compiler.
   "compilerOptions": {
     "target": "ES2020",
     "useDefineForClassFields": true,
@@ -25,3 +28,4 @@
   },
   "include": ["src"]
 }
+

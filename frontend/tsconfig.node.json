@@ -21,3 +21,6 @@
   },
   "include": ["vite.config.ts"]
 }
+
+// This is a TypeScript configuration file for a Node.js environment in a frontend project.
+// It specifies the compiler options and includes the Vite configuration file for the project.

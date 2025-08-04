@@ -77,7 +77,7 @@ contract AidChain is ERC721, Ownable {
     }
     
     //FUNCTION - for users to applyForAid
-    function applyForAid(string memory reason) external {
+    function applyForAid(string memory reason, string memory location) external {
         require(bytes(reason).length > 0, "Reason cannot be empty");
         require(aidRequests[msg.sender].recipient == address(0), "Already applied");    //nak elak same user apply multiple times
         
