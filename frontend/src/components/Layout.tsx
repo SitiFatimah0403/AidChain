@@ -25,14 +25,17 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const showAdminLink = isConnected && address && isAdmin(address); //boolean to determine if the admin link should be shown
 
   // Navigation links with icons -NAVBAR atas tu
-  const navLinks = [
-                    { to: '/', label: 'Home', icon: <Home className="h-4 w-4" /> },
-                    { to: '/donor', label: 'Donate', icon: <Heart className="h-4 w-4" /> },
-                    { to: '/recipient', label: 'Receive Aid', icon: <Wallet className="h-4 w-4" /> },
-                    ...(showAdminLink
-                      ? [{ to: '/admin', label: 'Admin', icon: <Shield className="h-4 w-4" /> }]
-                      : []),
-                  ];
+const navLinks = showAdminLink
+              ? [
+                  { to: '/', label: 'Home', icon: <Home className="h-4 w-4" /> },
+                  { to: '/admin', label: 'Admin', icon: <Shield className="h-4 w-4" /> },
+                ]
+              : [
+                  { to: '/', label: 'Home', icon: <Home className="h-4 w-4" /> },
+                  { to: '/donor', label: 'Donate', icon: <Heart className="h-4 w-4" /> },
+                  { to: '/recipient', label: 'Receive Aid', icon: <Wallet className="h-4 w-4" /> },
+                ];
+
 
                   /*Symbol  spread operator "..." combined with a conditional (ternary)  expression to 
                   dynamically include the Admin navigation link only if the user is an admin*/

@@ -2,7 +2,10 @@ import React, { useState } from 'react';
 import { Heart, Award, TrendingUp, Users, Gift } from 'lucide-react';
 import { useAccount, useWalletClient } from 'wagmi';
 import { useContract } from '@/hooks/useContract';
-import { useBadgeContract } from '@/hooks/useBadgeContract';
+import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { isAdmin } from '@/admin/isAdmin';
+
 
 
 export const DonorDashboard: React.FC = () => {
@@ -13,6 +16,14 @@ export const DonorDashboard: React.FC = () => {
   const { contractState, loading, donate, mintDonorNFT } = useContract();
   const [donationAmount, setDonationAmount] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
+
+  //if admin, then dia tak boleh masuk donor dashboard
+  useEffect(() => {
+  if (isAdmin(address)) {
+    navigate('/admin');
+  }
+}, [address]);
 
   const handleDonate = async (e: React.FormEvent) => {
     e.preventDefault();

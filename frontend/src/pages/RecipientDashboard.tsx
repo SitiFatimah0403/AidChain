@@ -5,6 +5,9 @@ import { Users, Clock, CheckCircle, Gift, AlertCircle } from 'lucide-react';
 import { useAccount } from 'wagmi';
 import { useContract } from '@/hooks/useContract';
 import { useBadgeContract } from '@/hooks/useBadgeContract';
+import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { isAdmin } from '@/admin/isAdmin';
 
 export const RecipientDashboard: React.FC = () => {
   const { address, isConnected } = useAccount();
@@ -20,6 +23,14 @@ export const RecipientDashboard: React.FC = () => {
 
   const [aidReason, setAidReason] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
+
+    //if admin, then dia tak boleh masuk recipient dashboard
+    useEffect(() => {
+    if (isAdmin(address)) {
+      navigate('/admin');
+    }
+  }, [address]);
 
   const handleApplyForAid = async (e: React.FormEvent) => {
     e.preventDefault();
