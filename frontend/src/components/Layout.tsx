@@ -27,7 +27,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   // Navigation links with icons -NAVBAR atas tu
 const navLinks = showAdminLink
               ? [
-                  { to: '/', label: 'Home', icon: <Home className="h-4 w-4" /> },
                   { to: '/admin', label: 'Admin', icon: <Shield className="h-4 w-4" /> },
                 ]
               : [

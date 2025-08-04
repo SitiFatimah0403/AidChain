@@ -3,11 +3,21 @@ import { Link } from 'react-router-dom';
 import { Heart, Shield, Award, Users, TrendingUp, Globe } from 'lucide-react';
 import { useAccount } from 'wagmi';
 import { ConnectWalletButton } from '@/components/connectWalletButton';
-import { useBadgeContract } from '@/hooks/useBadgeContract';
+import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { isAdmin } from '@/admin/isAdmin';
 
 
 export const Home: React.FC = () => {
-  const { isConnected } = useAccount();
+  const { address, isConnected } = useAccount();
+  const navigate = useNavigate();
+
+      //if admin, then dia tak boleh masuk Home dashboard
+      useEffect(() => {
+      if (isAdmin(address)) {
+        navigate('/admin');
+      }
+    }, [address]);
 
   return (
     <div className="space-y-16">
