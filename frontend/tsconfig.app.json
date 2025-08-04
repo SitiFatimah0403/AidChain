@@ -19,6 +19,9 @@
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": false,
     "noUncheckedSideEffectImports": false,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+
 
     // for import path that starts with @/
     "baseUrl": "./src",
