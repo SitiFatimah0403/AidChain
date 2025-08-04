@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Shield, Users, CheckCircle, XCircle, AlertTriangle, Gift } from 'lucide-react';
 import { useContract } from '@/hooks/useContract';
 import { useAccount } from 'wagmi';
+import { isAdmin } from '@/admin/isAdmin'; 
 
 export const AdminPanel: React.FC = () => {
   const { address: userAddress, isConnected } = useAccount();

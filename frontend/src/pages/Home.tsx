@@ -6,8 +6,6 @@ import { ConnectWalletButton } from '@/components/connectWalletButton';
 import { useBadgeContract } from '@/hooks/useBadgeContract';
 
 
-
-
 export const Home: React.FC = () => {
   const { isConnected } = useAccount();
 

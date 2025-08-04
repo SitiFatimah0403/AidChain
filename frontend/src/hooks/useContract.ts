@@ -157,6 +157,7 @@ export const useContract = () => {
       chain: config.chains[0],
     });
 
+    // to apply for aid - recipient only
   const applyForAid = async (reason: string) =>
     await writeContract(config, {
       address: CONTRACT_ADDRESS,
@@ -167,6 +168,7 @@ export const useContract = () => {
       chain: config.chains[0],
     });
 
+    //to approve a recipient for aid - admin & NFA
   const approveRecipient = async (recipient: string) =>
     await writeContract(config, {
       address: CONTRACT_ADDRESS,
@@ -177,6 +179,18 @@ export const useContract = () => {
       chain: config.chains[0],
     });
 
+    //to reject a recipient for aid - admin only
+    const rejectRecipient = async (recipient: string) =>
+  await writeContract(config, {
+    address: CONTRACT_ADDRESS,
+    abi: AidChainAbi,
+    functionName: 'rejectRecipient',
+    args: [recipient],
+    account: userAddress!,
+    chain: config.chains[0],
+  });
+
+    // to claim aid after being approved
   const claimAid = async () =>
     await writeContract(config, {
       address: CONTRACT_ADDRESS,
@@ -186,6 +200,8 @@ export const useContract = () => {
       chain: config.chains[0],
     });
 
+    // to mint donor NFT - donor only
+  // This function mints a donor NFT to the connected wallet address.
   const mintDonorNFT = async (donorAddress: string) =>
     await writeContract(config, {
       address: CONTRACT_ADDRESS,
@@ -196,6 +212,8 @@ export const useContract = () => {
       chain: config.chains[0],
     });
 
+  // This function mints a recipient NFT to the specified recipient address.
+  // It is used by the admin to mint NFTs for approved recipients.
   const mintRecipientNFT = async (recipientAddress: string) =>
     await writeContract(config, {
       address: CONTRACT_ADDRESS,
@@ -212,6 +230,7 @@ export const useContract = () => {
     donate,
     applyForAid,
     approveRecipient,
+    rejectRecipient,
     claimAid,
     mintDonorNFT,
     mintRecipientNFT,

@@ -3,6 +3,8 @@ import { Link, useLocation } from 'react-router-dom';
 import { Heart, Wallet, Shield, Home } from 'lucide-react';
 import { useAccount, useDisconnect, useBalance } from 'wagmi';
 import { formatEther } from 'viem';
+import { isAdmin } from '@/admin/isAdmin';
+
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -17,6 +19,21 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     address: address,
    // watch: true,
   });
+  const showAdminLink = isConnected && address && isAdmin(address); //boolean to determine if the admin link should be shown
+
+  // Navigation links with icons -NAVBAR atas tu
+  const navLinks = [
+                    { to: '/', label: 'Home', icon: <Home className="h-4 w-4" /> },
+                    { to: '/donor', label: 'Donate', icon: <Heart className="h-4 w-4" /> },
+                    { to: '/recipient', label: 'Receive Aid', icon: <Wallet className="h-4 w-4" /> },
+                    ...(showAdminLink
+                      ? [{ to: '/admin', label: 'Admin', icon: <Shield className="h-4 w-4" /> }]
+                      : []),
+                  ];
+
+                  /*Symbol  spread operator "..." combined with a conditional (ternary)  expression to 
+                  dynamically include the Admin navigation link only if the user is an admin*/
+
 
   const isActive = (path: string) => location.pathname === path; // Checks if the current path matches the given path
 
@@ -32,27 +49,21 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               </Link>
 
               <div className="hidden md:flex space-x-6">
-                {[
-                  { to: '/', label: 'Home', icon: <Home className="h-4 w-4" /> },
-                  { to: '/donor', label: 'Donate', icon: <Heart className="h-4 w-4" /> },
-                  { to: '/recipient', label: 'Receive Aid', icon: <Wallet className="h-4 w-4" /> },
-                  { to: '/admin', label: 'Admin', icon: <Shield className="h-4 w-4" /> },
-                ].map(({ to, label, icon }) => (
-                  <Link
-                    key={to}
-                    to={to}
-                    className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                      isActive(to)
-                        ? 'bg-indigo-100 text-indigo-700'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                    }`}
-                  >
-                    {icon}
-                    <span>{label}</span>
-                  </Link>
-                ))}
-              </div>
-            </div>
+                  {navLinks.map(({ to, label, icon }) => (
+                      <Link
+                        key={to}
+                        to={to}
+                        className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                          isActive(to)
+                            ? 'bg-indigo-100 text-indigo-700'
+                            : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                        }`}
+                      >
+                        {icon}
+                        <span>{label}</span>
+                      </Link>
+                    ))}
+                  </div>
 
             <div className="flex items-center space-x-4">
               {isConnected && address ? (
@@ -86,6 +97,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               )}
             </div>
           </div>
+        </div>
         </div>
       </nav>
 

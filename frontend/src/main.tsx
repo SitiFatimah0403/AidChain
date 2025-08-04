@@ -9,10 +9,10 @@
 
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import App from './App.tsx';
-import './index.css';
+import App from '@/App.tsx';
+import '@/index.css';
 import { WagmiProvider } from 'wagmi';
-import { config } from './wagmisetup.ts';
+import { config } from '@/wagmisetup.ts';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'; // ✅ import this
 
 // ✅ create a QueryClient instance
