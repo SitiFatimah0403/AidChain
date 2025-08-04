@@ -1,11 +1,11 @@
- import { useAccount, useReadContract } from 'wagmi'; //to gtet current user address and read contract data
-import { writeContract } from '@wagmi/core'; //send transactions to the blockchain
-import { parseEther } from 'viem'; //to convert ether values to wei
-import type { Abi } from 'viem'; //import type for ABI definition
-import AidChainAbiJson from '@/contracts/AidChain.json'; //import the ABI of the AidChain contract
-import type { ContractState, Donation, AidRequest } from '@/types'; //import types for contract state, donations, and aid requests
-import { config } from '@/wagmisetup';  //import the wagmi configuration for the blockchain connection
-
+import { useAccount, useReadContract } from 'wagmi';
+import { writeContract, readContract } from '@wagmi/core';
+import { parseEther } from 'viem';
+import type { Abi } from 'viem';
+import AidChainAbiJson from '@/contracts/AidChain.json';
+import type { ContractState, Donation, AidRequest } from '@/types';
+import { config } from '@/wagmisetup';
+import { useMemo, useEffect, useState } from 'react';
 
 const CONTRACT_ADDRESS = import.meta.env.VITE_AID_CONTRACT as `0x${string}`;
 const AidChainAbi = AidChainAbiJson as unknown as Abi; // Cast the imported JSON ABI to the Abi type
@@ -14,7 +14,7 @@ const AidChainAbi = AidChainAbiJson as unknown as Abi; // Cast the imported JSON
 export const useContract = () => {
   const { address: userAddress } = useAccount();
 
-  // ===== READ CONTRACTS =====
+  // Read hooks
   const totalDonated = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: AidChainAbi,
@@ -38,9 +38,7 @@ export const useContract = () => {
     abi: AidChainAbi,
     functionName: 'aidRequests', //call aidRequests function from the contract
     args: userAddress ? [userAddress] : undefined,
-    query: {
-      enabled: !!userAddress,
-    },
+    query: { enabled: !!userAddress },
   });
 
   const isApproved = useReadContract({
@@ -48,9 +46,7 @@ export const useContract = () => {
     abi: AidChainAbi,
     functionName: 'approvedRecipients', //call approvedRecipients function from the contract
     args: userAddress ? [userAddress] : undefined,
-    query: {
-      enabled: !!userAddress,
-    },
+    query: { enabled: !!userAddress },
   });
 
   const hasClaimed = useReadContract({
@@ -58,9 +54,7 @@ export const useContract = () => {
     abi: AidChainAbi,
     functionName: 'hasClaimedAid', //call hasClaimedAid function from the contract
     args: userAddress ? [userAddress] : undefined,
-    query: {
-      enabled: !!userAddress,
-    },
+    query: { enabled: !!userAddress },
   });
 
   const hasDonated = useReadContract({
@@ -68,90 +62,158 @@ export const useContract = () => {
     abi: AidChainAbi,
     functionName: 'hasDonated', //call hasDonated function from the contract
     args: userAddress ? [userAddress] : undefined,
-    query: {
-      enabled: !!userAddress,
-    },
+    query: { enabled: !!userAddress },
   });
 
-// ==== WRITING CONTRACTS ====
-  return {
-    // ====Reading state====
-    contractState: {
-      totalDonated: totalDonated.data ? String(Number(totalDonated.data) / 1e18) : '0',
-      donations: getDonations.data ?? [],
-      aidRequests: ((aidRequestsList.data as string[] ?? [])).map((addr: string) => ({
-        recipient: addr,
-        reason: (userReq.data as AidRequest)?.reason ?? '',
-        timestamp: (userReq.data as AidRequest)?.timestamp ? Number((userReq.data as AidRequest).timestamp) : 0,
-        approved: isApproved.data ?? false,
-        claimed: hasClaimed.data ?? false,
-      })),
-      userHasDonated: hasDonated.data ?? false,
-      userHasApplied:
-        !!(userReq.data as AidRequest)?.recipient &&
-        (userReq.data as AidRequest)?.recipient !== '0x0000000000000000000000000000000000000000', //nanti tukar
-      userIsApproved: isApproved.data ?? false,
-      userHasClaimed: hasClaimed.data ?? false,
-    },
+  // Load full AidRequest details
+  const [fullAidRequests, setFullAidRequests] = useState<AidRequest[]>([]);
 
-    // ====Writing actions====== 
-    donate: async (amount: string) =>
-      await writeContract(config, {
+  useEffect(() => {
+    const fetchDetails = async () => {
+      if (!Array.isArray(aidRequestsList.data)) return;
+      const addresses = aidRequestsList.data as string[];
+
+      const detailedRequests = await Promise.all(
+        addresses.map(async (addr) => {
+          const [req, approved, claimed] = await Promise.all([
+  readContract(config, {
+    address: CONTRACT_ADDRESS,
+    abi: AidChainAbi,
+    functionName: 'aidRequests',
+    args: [addr],
+  }) as Promise<AidRequest>,
+
+  readContract(config, {
+    address: CONTRACT_ADDRESS,
+    abi: AidChainAbi,
+    functionName: 'approvedRecipients',
+    args: [addr],
+  }) as Promise<boolean>,
+
+  readContract(config, {
+    address: CONTRACT_ADDRESS,
+    abi: AidChainAbi,
+    functionName: 'hasClaimedAid',
+    args: [addr],
+  }) as Promise<boolean>,
+]);
+
+
+          return {
+            recipient: addr,
+            reason: req.reason,
+            timestamp: Number(req.timestamp),
+            approved,
+            claimed,
+          };
+        })
+      );
+
+      setFullAidRequests(detailedRequests);
+    };
+
+    fetchDetails();
+  }, [aidRequestsList.data]);
+
+  const loading =
+    totalDonated.isLoading ||
+    getDonations.isLoading ||
+    aidRequestsList.isLoading ||
+    userReq.isLoading ||
+    isApproved.isLoading ||
+    hasClaimed.isLoading ||
+    hasDonated.isLoading;
+
+  const contractState: ContractState = useMemo(() => ({
+    totalDonated: totalDonated.data ? String(Number(totalDonated.data) / 1e18) : '0',
+    donations: (getDonations.data ?? []) as Donation[],
+    aidRequests: fullAidRequests,
+    
+    userHasApplied:
+      !!(userReq.data as AidRequest)?.recipient &&
+      (userReq.data as AidRequest)?.recipient !== '0x0000000000000000000000000000000000000000',
+    userHasDonated: Boolean(hasDonated.data),
+    userIsApproved: Boolean(isApproved.data),
+    userHasClaimed: Boolean(hasClaimed.data),
+
+  }), [
+    totalDonated.data,
+    getDonations.data,
+    fullAidRequests,
+    userReq.data,
+    isApproved.data,
+    hasClaimed.data,
+    hasDonated.data,
+  ]);
+
+  // Write actions
+  const donate = async (amount: string) =>
+    await writeContract(config, {
       abi: AidChainAbi,
       address: CONTRACT_ADDRESS,
       functionName: 'donate', //send donation to the contract
       account: userAddress,
       value: parseEther(amount),
-      chain: config.chains[0], //use sepolia chain je
-    }),
+      chain: config.chains[0],
+    });
 
-    applyForAid: async (reason: string) =>
-      await writeContract(config, {
-        address: CONTRACT_ADDRESS,
-        abi: AidChainAbi,
-        functionName: 'applyForAid',
-        args: [reason],
-        account: userAddress!,
-        chain: config.chains[0],
-      }),
+  const applyForAid = async (reason: string) =>
+    await writeContract(config, {
+      address: CONTRACT_ADDRESS,
+      abi: AidChainAbi,
+      functionName: 'applyForAid',
+      args: [reason],
+      account: userAddress!,
+      chain: config.chains[0],
+    });
 
-    approveRecipient: async (recipient: string) =>
-      await writeContract(config, {
-        address: CONTRACT_ADDRESS,
-        abi: AidChainAbi,
-        functionName: 'approveRecipient',
-        args: [recipient],
-        account: userAddress!,
-        chain: config.chains[0], // Add the chain property
-      }),
+  const approveRecipient = async (recipient: string) =>
+    await writeContract(config, {
+      address: CONTRACT_ADDRESS,
+      abi: AidChainAbi,
+      functionName: 'approveRecipient',
+      args: [recipient],
+      account: userAddress!,
+      chain: config.chains[0],
+    });
 
-    claimAid: async () =>
-      await writeContract(config, {
-        address: CONTRACT_ADDRESS,
-        abi: AidChainAbi,
-        functionName: 'claimAid',
-        account: userAddress!,
-        chain: config.chains[0],
-      }),
+  const claimAid = async () =>
+    await writeContract(config, {
+      address: CONTRACT_ADDRESS,
+      abi: AidChainAbi,
+      functionName: 'claimAid',
+      account: userAddress!,
+      chain: config.chains[0],
+    });
 
-    mintDonorNFT: async () =>
-      await writeContract(config, {
-        address: CONTRACT_ADDRESS,
-        abi: AidChainAbi,
-        functionName: 'mintDonorNFT',
-        args: [userAddress!],
-        account: userAddress!,
-        chain: config.chains[0],
-      }),
+  const mintDonorNFT = async (donorAddress: string) =>
+    await writeContract(config, {
+      address: CONTRACT_ADDRESS,
+      abi: AidChainAbi,
+      functionName: 'mintDonorNFT',
+      args: [donorAddress],
+      account: userAddress!,
+      chain: config.chains[0],
+    });
 
-    mintRecipientNFT: async () =>
-      await writeContract(config, {
-        address: CONTRACT_ADDRESS,
-        abi: AidChainAbi,
-        functionName: 'mintRecipientNFT',
-        args: [userAddress!],
-        account: userAddress!,
-        chain: config.chains[0],
-      }),
+  const mintRecipientNFT = async (recipientAddress: string) =>
+    await writeContract(config, {
+      address: CONTRACT_ADDRESS,
+      abi: AidChainAbi,
+      functionName: 'mintRecipientNFT',
+      args: [recipientAddress],
+      account: userAddress!,
+      chain: config.chains[0],
+    });
+
+  return {
+    contractState,
+    loading,
+    donate,
+    applyForAid,
+    approveRecipient,
+    claimAid,
+    mintDonorNFT,
+    mintRecipientNFT,
   };
 };

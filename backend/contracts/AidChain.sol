@@ -33,6 +33,8 @@ contract AidChain is ERC721, Ownable {
         bool approved;
         bool claimed;
         string location;    //untuk tambah location applicant
+        string name;
+        string contact;
     }
     
     struct Donation {
@@ -82,7 +84,7 @@ contract AidChain is ERC721, Ownable {
     }
     
     //FUNCTION - for users to applyForAid
-    function applyForAid(string memory reason, string memory location) external {
+    function applyForAid(string memory reason, string memory location, string memory name, string memory contact) external {
         require(bytes(reason).length > 0, "Reason cannot be empty");
         // require(aidRequests[msg.sender].recipient == address(0), "Already applied");    //nak elak same user apply multiple times   // ni mcm dh xperlu juga?
         require(block.timestamp >= lastClaimedAt[msg.sender] + 90 days, "Wait 3 months before reapplying"); //user blh apply balik aftr 3 bulan
@@ -95,7 +97,9 @@ contract AidChain is ERC721, Ownable {
             timestamp: block.timestamp,
             approved: false,
             claimed: false,
-            location: location
+            location: location,
+            name: name,
+            contact: contact
         });
         
         // Second step - simpan user's wallet address dan info tadi (in order)

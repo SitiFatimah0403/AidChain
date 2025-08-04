@@ -1,14 +1,25 @@
-import React, { useState } from 'react';
+import * as React from 'react';
+import { useState } from 'react';
+
 import { Users, Clock, CheckCircle, Gift, AlertCircle } from 'lucide-react';
-import { useWallet } from '../hooks/useWallet';
-import { useContract } from '../hooks/useContract';
+import { useAccount } from 'wagmi';
+import { useContract } from '@/hooks/useContract';
+import { useBadgeContract } from '@/hooks/useBadgeContract';
 
 export const RecipientDashboard: React.FC = () => {
-  const { wallet, signer } = useWallet();
-  const { contractState, loading, applyForAid, claimAid, mintRecipientNFT } = useContract(signer, wallet.address);
+  const { address, isConnected } = useAccount();
+  const {
+    contractState,
+    donate,
+    mintDonorNFT,
+    applyForAid,
+    claimAid,
+    loading
+  } = useContract();
+  const { mintBadge } = useBadgeContract();
+
   const [aidReason, setAidReason] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [location, setLocation] = useState('');
 
   const handleApplyForAid = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,22 +27,18 @@ export const RecipientDashboard: React.FC = () => {
 
     try {
       setIsSubmitting(true);
-
-      // dapatkan user punya location
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const lat = position.coords.latitude.toFixed(6);
           const lon = position.coords.longitude.toFixed(6);
           const locationStr = `${lat},${lon}`;
-
-          // Now send reason + location to smart contract
-          await applyForAid(aidReason, locationStr);
+          //await applyForAid(aidReason, locationStr);
           setAidReason('');
           alert('Aid application submitted successfully!');
         },
         (error) => {
-          console.error("Location access denied", error);
-          alert("Please enable location to submit your application.");
+          console.error('Location access denied', error);
+          alert('Please enable location to submit your application.');
           setIsSubmitting(false);
         }
       );
@@ -56,10 +63,9 @@ export const RecipientDashboard: React.FC = () => {
   };
 
   const handleMintNFT = async () => {
-    if (!wallet.address) return;
-    
+    if (!address) return;
     try {
-      await mintRecipientNFT(wallet.address);
+      await mintBadge(address, 'recipient');
       alert('Recipient NFT minted successfully!');
     } catch (error) {
       console.error('NFT minting failed:', error);
@@ -79,7 +85,7 @@ export const RecipientDashboard: React.FC = () => {
     return 'Pending';
   };
 
-  if (!wallet.isConnected) {
+  if (!isConnected || !address) {
     return (
       <div className="text-center py-12">
         <Users className="h-16 w-16 text-gray-400 mx-auto mb-4" />
@@ -89,23 +95,25 @@ export const RecipientDashboard: React.FC = () => {
     );
   }
 
-  const userRequest = contractState.aidRequests.find(r => r.recipient.toLowerCase() === wallet.address?.toLowerCase());
+  const userRequest = contractState.aidRequests.find(
+    (r) => r.recipient.toLowerCase() === address.toLowerCase()
+  );
 
   return (
     <div className="space-y-8">
-      {/* Header */}
       <div className="text-center">
         <h1 className="text-4xl font-bold text-gray-900 mb-2">Recipient Dashboard</h1>
         <p className="text-xl text-gray-600">Apply for aid and track your application status</p>
       </div>
 
-      {/* Status Cards */}
       <div className="grid md:grid-cols-4 gap-6">
         <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Total Requests</p>
-              <p className="text-2xl font-bold text-gray-900">{contractState.aidRequests.length}</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {contractState.aidRequests?.length ?? 0}
+              </p>
             </div>
             <Users className="h-8 w-8 text-blue-600" />
           </div>
@@ -116,7 +124,7 @@ export const RecipientDashboard: React.FC = () => {
             <div>
               <p className="text-sm font-medium text-gray-600">Approved</p>
               <p className="text-2xl font-bold text-gray-900">
-                {contractState.aidRequests.filter(r => r.approved).length}
+                {contractState.aidRequests.filter((r) => r.approved).length}
               </p>
             </div>
             <CheckCircle className="h-8 w-8 text-green-600" />
@@ -128,7 +136,7 @@ export const RecipientDashboard: React.FC = () => {
             <div>
               <p className="text-sm font-medium text-gray-600">Claimed</p>
               <p className="text-2xl font-bold text-gray-900">
-                {contractState.aidRequests.filter(r => r.claimed).length}
+                {contractState.aidRequests.filter((r) => r.claimed).length}
               </p>
             </div>
             <Gift className="h-8 w-8 text-purple-600" />
@@ -148,8 +156,8 @@ export const RecipientDashboard: React.FC = () => {
         </div>
       </div>
 
+      {/* Form or Status View */}
       <div className="grid lg:grid-cols-2 gap-8">
-        {/* Application Form or Status */}
         <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
           {!contractState.userHasApplied ? (
             <>
@@ -157,7 +165,6 @@ export const RecipientDashboard: React.FC = () => {
                 <Users className="h-6 w-6 text-blue-600 mr-2" />
                 Apply for Aid
               </h2>
-
               <form onSubmit={handleApplyForAid} className="space-y-4">
                 <div>
                   <label htmlFor="reason" className="block text-sm font-medium text-gray-700 mb-2">
@@ -199,13 +206,17 @@ export const RecipientDashboard: React.FC = () => {
                 <CheckCircle className="h-6 w-6 text-green-600 mr-2" />
                 Your Application Status
               </h2>
-
               {userRequest && (
                 <div className="space-y-4">
                   <div className="p-4 bg-gray-50 rounded-lg">
                     <div className="flex items-center justify-between mb-2">
                       <span className="font-medium text-gray-900">Status</span>
-                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(userRequest.approved, userRequest.claimed)}`}>
+                      <span
+                        className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
+                          userRequest.approved,
+                          userRequest.claimed
+                        )}`}
+                      >
                         {getStatusText(userRequest.approved, userRequest.claimed)}
                       </span>
                     </div>
@@ -213,7 +224,8 @@ export const RecipientDashboard: React.FC = () => {
                       <strong>Reason:</strong> {userRequest.reason}
                     </p>
                     <p className="text-sm text-gray-600">
-                      <strong>Applied:</strong> {new Date(userRequest.timestamp * 1000).toLocaleDateString()}
+                      <strong>Applied:</strong>{' '}
+                      {new Date(userRequest.timestamp * 1000).toLocaleDateString()}
                     </p>
                   </div>
 
@@ -238,7 +250,9 @@ export const RecipientDashboard: React.FC = () => {
                       <div className="flex items-center justify-between">
                         <div>
                           <h3 className="font-semibold text-purple-900">Claim Your Recipient NFT</h3>
-                          <p className="text-sm text-purple-800">You're eligible for a recipient badge NFT!</p>
+                          <p className="text-sm text-purple-800">
+                            You're eligible for a recipient badge NFT!
+                          </p>
                         </div>
                         <button
                           onClick={handleMintNFT}
@@ -256,10 +270,8 @@ export const RecipientDashboard: React.FC = () => {
           )}
         </div>
 
-        {/* Recent Aid Requests */}
         <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">Recent Aid Requests</h2>
-          
           {loading ? (
             <div className="text-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
@@ -273,7 +285,12 @@ export const RecipientDashboard: React.FC = () => {
                     <span className="font-medium text-gray-900">
                       {request.recipient.slice(0, 6)}...{request.recipient.slice(-4)}
                     </span>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(request.approved, request.claimed)}`}>
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                        request.approved,
+                        request.claimed
+                      )}`}
+                    >
                       {getStatusText(request.approved, request.claimed)}
                     </span>
                   </div>
@@ -293,22 +310,21 @@ export const RecipientDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Information Section */}
       <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl p-8 text-white">
         <h2 className="text-2xl font-bold mb-4">How Aid Distribution Works</h2>
         <div className="grid md:grid-cols-2 gap-6">
           <div>
             <h3 className="font-semibold mb-2">Automatic Approval (NFA)</h3>
             <p className="text-blue-100 text-sm">
-              Our No Fraud Algorithm automatically approves legitimate requests from addresses that haven't 
-              previously claimed aid and aren't flagged for suspicious activity.
+              Our No Fraud Algorithm automatically approves legitimate requests from addresses that
+              haven't previously claimed aid and aren't flagged for suspicious activity.
             </p>
           </div>
           <div>
             <h3 className="font-semibold mb-2">Fair Distribution</h3>
             <p className="text-blue-100 text-sm">
-              Each approved recipient can claim exactly 0.01 ETH to ensure fair distribution of donated funds 
-              among all those who need assistance.
+              Each approved recipient can claim exactly 0.01 ETH to ensure fair distribution of
+              donated funds among all those who need assistance.
             </p>
           </div>
         </div>

@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import { Heart, Award, TrendingUp, Users, Gift } from 'lucide-react';
 import { useAccount, useWalletClient } from 'wagmi';
-import { useContract } from '../hooks/useContract';
+import { useContract } from '@/hooks/useContract';
+import { useBadgeContract } from '@/hooks/useBadgeContract';
+
 
 export const DonorDashboard: React.FC = () => {
   const { address, isConnected } = useAccount();
   const { data: walletClient } = useWalletClient();
   const signer = walletClient;
 
-  const { contractState, loading, donate, mintDonorNFT } = useContract(signer, address);
+  const { contractState, loading, donate, mintDonorNFT } = useContract();
   const [donationAmount, setDonationAmount] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -30,18 +32,18 @@ export const DonorDashboard: React.FC = () => {
   };
 
   const handleMintNFT = async () => {
-    if (!wallet.address) return;
-    
-    try {
-      await mintDonorNFT(wallet.address);
-      alert('Donor NFT minted successfully!');
-    } catch (error) {
-      console.error('NFT minting failed:', error);
-      alert('NFT minting failed. Please try again.');
-    }
+    if (!address) return;
+
+try {
+  await mintDonorNFT(address); // ✅ now passing the address
+  alert('Donor NFT minted successfully!');
+} catch (error) {
+  console.error('NFT minting failed:', error);
+  alert('NFT minting failed. Please try again.');
+}
   };
 
-  if (!wallet.isConnected) {
+  if (!isConnected) {
     return (
       <div className="text-center py-12">
         <Heart className="h-16 w-16 text-gray-400 mx-auto mb-4" />
@@ -53,13 +55,11 @@ export const DonorDashboard: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
       <div className="text-center">
         <h1 className="text-4xl font-bold text-gray-900 mb-2">Donor Dashboard</h1>
         <p className="text-xl text-gray-600">Make a difference with transparent blockchain donations</p>
       </div>
 
-      {/* Stats Cards */}
       <div className="grid md:grid-cols-4 gap-6">
         <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
           <div className="flex items-center justify-between">
@@ -105,7 +105,6 @@ export const DonorDashboard: React.FC = () => {
       </div>
 
       <div className="grid lg:grid-cols-2 gap-8">
-        {/* Donation Form */}
         <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
           <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
             <Heart className="h-6 w-6 text-red-600 mr-2" />
@@ -166,7 +165,6 @@ export const DonorDashboard: React.FC = () => {
           )}
         </div>
 
-        {/* Recent Donations */}
         <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">Recent Donations</h2>
           
@@ -202,20 +200,19 @@ export const DonorDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Impact Visualization */}
       <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl p-8 text-white">
         <h2 className="text-2xl font-bold mb-4">Your Impact</h2>
         <div className="grid md:grid-cols-3 gap-6">
           <div className="text-center">
             <div className="text-3xl font-bold mb-2">
-              {contractState.donations.filter(d => d.donor.toLowerCase() === wallet.address?.toLowerCase()).length}
+              {contractState.donations.filter(d => d.donor.toLowerCase() === address?.toLowerCase()).length}
             </div>
             <div className="text-indigo-200">Your Donations</div>
           </div>
           <div className="text-center">
             <div className="text-3xl font-bold mb-2">
               {contractState.donations
-                .filter(d => d.donor.toLowerCase() === wallet.address?.toLowerCase())
+                .filter(d => d.donor.toLowerCase() === address?.toLowerCase())
                 .reduce((sum, d) => sum + parseFloat(d.amount), 0)
                 .toFixed(4)}
             </div>
@@ -223,9 +220,11 @@ export const DonorDashboard: React.FC = () => {
           </div>
           <div className="text-center">
             <div className="text-3xl font-bold mb-2">
-              {Math.floor(contractState.donations
-                .filter(d => d.donor.toLowerCase() === wallet.address?.toLowerCase())
-                .reduce((sum, d) => sum + parseFloat(d.amount), 0) / 0.01)}
+              {Math.floor(
+                contractState.donations
+                  .filter(d => d.donor.toLowerCase() === address?.toLowerCase())
+                  .reduce((sum, d) => sum + parseFloat(d.amount), 0) / 0.01
+              )}
             </div>
             <div className="text-indigo-200">People You Can Help</div>
           </div>
