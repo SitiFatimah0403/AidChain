@@ -2,6 +2,8 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Heart, Wallet, Shield, Home } from 'lucide-react';
 import { useAccount, useDisconnect, useBalance } from 'wagmi';
+import { useConnect } from 'wagmi';
+import { injected } from 'wagmi/connectors';
 import { formatEther } from 'viem';
 import { isAdmin } from '@/admin/isAdmin';
 
@@ -14,6 +16,7 @@ interface LayoutProps {
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
   const { address, isConnected } = useAccount(); // Gets the connected wallet address and status
+  const { connect } = useConnect(); 
   const { disconnect } = useDisconnect();
   const { data: balanceData } = useBalance({ // Fetches the balance of the connected wallet
     address: address,
@@ -85,15 +88,12 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </div>
               ) : (
                 <button
-                  onClick={() => {
-                    const el = document.getElementById('connect-modal-button');
-                    if (el) (el as HTMLButtonElement).click();
-                  }}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center space-x-2"
-                >
-                  <Wallet className="h-4 w-4" />
-                  <span>Connect Wallet</span>
-                </button>
+                    onClick={() => connect({ connector: injected() })}
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center space-x-2"
+                  >
+                    <Wallet className="h-4 w-4" />
+                    <span>Connect Wallet</span>
+                  </button>
               )}
             </div>
           </div>
