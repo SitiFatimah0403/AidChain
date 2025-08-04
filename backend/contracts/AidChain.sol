@@ -13,7 +13,8 @@ contract AidChain is ERC721, Ownable {
     Counters.Counter private _donorTokenIds;
     Counters.Counter private _recipientTokenIds;
     
-    uint256 public currentCycleStart;     //utk create duration
+    uint256 public currentCycleId; //utk create cycle
+    uint256 public currentCycleStart;     
     uint256 public donationCycleDuration = 14 days;
     address public activeRecipient;
     bool public cycleClaimed;
@@ -41,10 +42,14 @@ contract AidChain is ERC721, Ownable {
     }
     
     mapping(address => bool) public approvedRecipients;
-    mapping(address => bool) public hasClaimedAid;
+    mapping(address => bool) public hasClaimedAid;  //ni mcm boleh buang sbb ada mapping hasClaimedAidByCycle?
     mapping(address => bool) public hasDonated;
     mapping(address => AidRequest) public aidRequests;
     mapping(address => bool) public flaggedAddresses;
+
+    mapping(uint256 => mapping(address => bool)) public hasClaimedAidByCycle; //user dah claim blum utk cycle tu
+    mapping(uint256 => mapping(address => bool)) public hasAppliedByCycle; //user dah apply blum utk each cycle
+    mapping(address => uint256) public lastClaimedAt; //timestamp last time user claim
     
     Donation[] public donations;
     address[] public aidRequestsList;
@@ -79,7 +84,9 @@ contract AidChain is ERC721, Ownable {
     //FUNCTION - for users to applyForAid
     function applyForAid(string memory reason, string memory location) external {
         require(bytes(reason).length > 0, "Reason cannot be empty");
-        require(aidRequests[msg.sender].recipient == address(0), "Already applied");    //nak elak same user apply multiple times
+        // require(aidRequests[msg.sender].recipient == address(0), "Already applied");    //nak elak same user apply multiple times   // ni mcm dh xperlu juga?
+        require(block.timestamp >= lastClaimedAt[msg.sender] + 90 days, "Wait 3 months before reapplying"); //user blh apply balik aftr 3 bulan
+        require(!hasAppliedByCycle[currentCycleId][msg.sender], "Already applied"); //user dh apply utk current cycle
         
         // First step - simpan dulu detail of user's aid request
         aidRequests[msg.sender] = AidRequest({
@@ -95,14 +102,16 @@ contract AidChain is ERC721, Ownable {
         aidRequestsList.push(msg.sender);
 
         // Third step - ni as NFA (which will check if dia pernah appy aids, dia akan auto approve - kalau dia approve, kita boleh tengok apa reason dia approve)
-        // isEligible will check if 1) user has not already claimed, 2) suer is not flagged, 3) reason tak lebih 20 chars (double check)
-        bool isEligible = !hasClaimedAid[msg.sender] &&
-                        !flaggedAddresses[msg.sender] &&
-                        bytes(reason).length > 20; // Make sure reason is at least 20 chars
+        // isEligible will check if 1) suer is not flagged, 3) reason tak lebih 20 chars (double check)
+        hasAppliedByCycle[currentCycleId][msg.sender] = true;  //utk marked user already applied for current cycle
+        bool isEligible = !flaggedAddresses[msg.sender] &&
+                          bytes(reason).length > 20; // Make sure reason is at least 20 chars
 
         if (isEligible) {
             approvedRecipients[msg.sender] = true;
             aidRequests[msg.sender].approved = true;
+            activeRecipient = msg.sender;
+            currentCycleStart = block.timestamp;
             emit ApprovedByNFA(msg.sender, block.timestamp);
         } else {
             emit RejectedByNFA(msg.sender, "NFA rejected: Ineligible or poor reason");
@@ -124,13 +133,15 @@ contract AidChain is ERC721, Ownable {
     function claimAid() external {  //recipient can claim after 14days 
         require(approvedRecipients[msg.sender], "Not approved for aid");
         require(!hasClaimedAid[msg.sender], "Already claimed aid");
-        require(block.timestamp >= currentCycleStart + donationCycleDuration, "Wait until cycle ends");
+        require(block.timestamp >= currentCycleStart + donationCycleDuration, "Wait until 14 days passed");
 
         cycleClaimed = true;
-        hasClaimedAid[msg.sender] = true;
+        lastClaimedAt[msg.sender] = block.timestamp;
+        hasClaimedAidByCycle[currentCycleId][msg.sender] = true;
         aidRequests[msg.sender].claimed = true;
         
         uint256 payout = address(this).balance;
+        require(payout > 0, "No funds to claim");
         payable(msg.sender).transfer(payout);
         
         emit AidClaimed(msg.sender, payout, block.timestamp);
@@ -143,6 +154,16 @@ contract AidChain is ERC721, Ownable {
     function getAidRequests() external view returns (address[] memory) {
         return aidRequestsList;
     }
+
+    function resetCycle() external onlyOwner {
+        require(cycleClaimed || block.timestamp >= currentCycleStart + donationCycleDuration + 5 days,"Too early to reset"); //akan reset cycle aftr claim or dah >5 days utk claim 
+
+        activeRecipient = address(0);  //all this perlu utk set new cycle for user
+        cycleClaimed = false;
+        currentCycleStart = 0;
+        currentCycleId += 1;
+    }
+
     
     //For minting Donor NFT
     function mintDonorNFT(address donor) external onlyOwner {
