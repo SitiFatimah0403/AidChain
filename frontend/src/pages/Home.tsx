@@ -6,7 +6,7 @@ import { ConnectWalletButton } from '@/components/connectWalletButton';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { isAdmin } from '@/admin/isAdmin';
-
+import { GeminiChat } from '@/components/ChatBot';
 
 export const Home: React.FC = () => {
   const { address, isConnected } = useAccount();
@@ -97,6 +97,9 @@ export const Home: React.FC = () => {
         </p>
         {!isConnected && <ConnectWalletButton />}
       </div>
+
+      {/* ✅ Gemini Chat floating assistant */}
+      <GeminiChat />
     </div>
   );
 };

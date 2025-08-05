@@ -5,6 +5,8 @@ import { useContract } from '@/hooks/useContract';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { isAdmin } from '@/admin/isAdmin';
+import { GeminiChat } from "@/components/ChatBot";
+
 
 
 
@@ -147,6 +149,9 @@ try {
                 Each recipient can claim up to 0.01 ETH to help with their needs.
               </p>
             </div>
+
+             {/* ✅ Floating chatbot */}
+              <GeminiChat />
 
             <button
               type="submit"
