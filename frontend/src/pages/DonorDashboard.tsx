@@ -193,7 +193,8 @@ try {
                       {donation.donor.slice(0, 6)}...{donation.donor.slice(-4)}
                     </p>
                     <p className="text-sm text-gray-600">
-                      {new Date(donation.timestamp * 1000).toLocaleDateString()}
+                      {new Date(Number(donation.timestamp) * 1000).toLocaleDateString()}
+
                     </p>
                   </div>
                   <div className="text-right">

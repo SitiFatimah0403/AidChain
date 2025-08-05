@@ -2,7 +2,8 @@
 
 // Function to get admin addresses from environment variable
 export const getAdminAddresses = (): string[] => {
-  const envValue = import.meta.env.VITE_ADMIN_WALLETS_FATIMAH; //fatimah je boleh tgk buat masa ni
+  //const envValue = import.meta.env.VITE_ADMIN_WALLETS_FATIMAH; //fatimah je boleh tgk buat masa ni
+  const envValue = import.meta.env.VITE_ADMIN_WALLETS; //FOR TESTING
 
   if (!envValue) return [];
   return envValue.split(',').map(addr => addr.trim().toLowerCase());

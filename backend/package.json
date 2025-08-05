@@ -1,7 +1,7 @@
 {
   "name": "aidchain-backend",
   "version": "1.0.0",
-  "description": "Backend for AidChain using Express and IPFS (Pinata)",
+  "description": "Backend for AidChain using Express and Node.js",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
