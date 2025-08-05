@@ -57,6 +57,7 @@ export const RecipientDashboard: React.FC = () => {
             name,
             phone
           );
+          console.log('✅ Aid application submitted!');
           setAidReason('');
           alert('Aid application submitted successfully!');
         },

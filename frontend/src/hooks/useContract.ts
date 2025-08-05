@@ -8,7 +8,7 @@ import { config } from '@/wagmisetup';
 import { useMemo, useEffect, useState } from 'react';
 
 const CONTRACT_ADDRESS = import.meta.env.VITE_AID_CONTRACT as `0x${string}`;
-const AidChainAbi = AidChainAbiJson as unknown as Abi; // Cast the imported JSON ABI to the Abi type
+const AidChainAbi = AidChainAbiJson.abi as Abi; // Cast the imported JSON ABI to the Abi type
 
 // This custom hook provides functions to interact with the AidChain smart contract.
 export const useContract = () => {
