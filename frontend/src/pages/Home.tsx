@@ -34,6 +34,43 @@ export const Home: React.FC = () => {
           </p>
         </div>
 
+        {/* Hero Image */}
+          <div className="relative max-w-5xl mx-auto">
+            <div className="relative rounded-3xl overflow-hidden shadow-2xl backdrop-blur-md bg-white/10 border border-white/20">
+              <img
+                src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
+                alt="Hands reaching out for help and support"
+                className="w-full h-96 object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+            </div>
+            
+            {/* Floating cards */}
+            <div className="absolute -top-8 -left-8 bg-white border border-gray-200 rounded-2xl p-6 shadow-xl">
+              <div className="flex items-center space-x-3">
+                <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center">
+                  <Shield className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <p className="font-semibold text-gray-900">100% Secure</p>
+                  <p className="text-sm text-gray-600">Blockchain Protected</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="absolute -bottom-8 -right-8 bg-white border border-gray-200 rounded-2xl p-6 shadow-xl">
+              <div className="flex items-center space-x-3">
+                <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center">
+                  <TrendingUp className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <p className="font-semibold text-gray-900">89.3 ETH</p>
+                  <p className="text-sm text-gray-600">Total Raised</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
           {isConnected ? (
             <div className="flex gap-4">
@@ -58,6 +95,65 @@ export const Home: React.FC = () => {
           )}
         </div>
       </div>
+
+       {/* Fundraising Progress Containers */}
+       <div className="grid md:grid-cols-3 gap-8">
+  {/* Card 1 */}
+  <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+    <img
+  src="https://images.unsplash.com/photo-1593113598332-cd288d649433?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
+  alt="Volunteer packing food boxes"
+  className="w-full h-40 object-cover"
+/>
+
+    <div className="p-4 space-y-2">
+      <h3 className="text-xl font-semibold text-gray-900">Emergency Food Relief</h3>
+      <p className="text-sm text-gray-500">Southeast Asia</p>
+      <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+        <div className="bg-green-500 h-2.5 rounded-full" style={{ width: `82%` }}></div>
+      </div>
+      <p className="text-sm text-gray-600">24.7 ETH raised of 30.0 ETH</p>
+      <p className="text-sm text-gray-600">156 donors</p>
+    </div>
+  </div>
+
+  {/* Card 2 */}
+  <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+    <img
+      src="https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
+      alt="Clean Water Initiative"
+      className="w-full h-40 object-cover"
+    />
+    <div className="p-4 space-y-2">
+      <h3 className="text-xl font-semibold text-gray-900">Clean Water Initiative</h3>
+      <p className="text-sm text-gray-500">Sub-Saharan Africa</p>
+      <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+        <div className="bg-blue-500 h-2.5 rounded-full" style={{ width: `73%` }}></div>
+      </div>
+      <p className="text-sm text-gray-600">18.2 ETH raised of 25.0 ETH</p>
+      <p className="text-sm text-gray-600">203 donors</p>
+    </div>
+  </div>
+
+  {/* Card 3 */}
+  <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+    <img
+      src="https://images.unsplash.com/photo-1497486751825-1233686d5d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
+      alt="Education Support"
+      className="w-full h-40 object-cover"
+    />
+    <div className="p-4 space-y-2">
+      <h3 className="text-xl font-semibold text-gray-900">Education Support</h3>
+      <p className="text-sm text-gray-500">Rural Communities</p>
+      <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+        <div className="bg-purple-500 h-2.5 rounded-full" style={{ width: `79%` }}></div>
+      </div>
+      <p className="text-sm text-gray-600">31.5 ETH raised of 40.0 ETH</p>
+      <p className="text-sm text-gray-600">287 donors</p>
+    </div>
+  </div>
+</div>
+
 
       {/* Features Grid */}
       <div className="grid md:grid-cols-3 gap-8">
@@ -158,14 +254,29 @@ const HowItWorks = () => (
       </ol>
       <div className="relative">
         <img
-          src="https://images.unsplash.com/photo-1559526324-4b87b5e36e44?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-          alt="Blockchain tech"
+          src="https://images.unsplash.com/photo-1559027615-cd4628902d4a?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+          alt="volunteer pic"
           className="rounded-lg shadow-lg"
         />
         <div className="absolute inset-0 bg-indigo-600 bg-opacity-10 rounded-lg" />
+      
+  
+{/* Floating elements */}
+        <div className="absolute -top-6 -right-6 bg-white border border-gray-200 rounded-2xl p-4 shadow-xl">
+          <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
+            <Heart className="h-4 w-4 text-white" />
+          </div>
+        </div>
+        
+        <div className="absolute -bottom-6 -left-6 bg-white border border-gray-200 rounded-2xl p-4 shadow-xl">
+          <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+            <Award className="h-4 w-4 text-white" />
+          </div>
+        </div>
       </div>
     </div>
   </div>
+  
 );
 
 const Stats = () => (
