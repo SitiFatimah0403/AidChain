@@ -1,8 +1,5 @@
-import { useEffect, useState } from "react";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { useState } from "react";
 import { X } from "lucide-react";
-
-const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
 
 export const GeminiChat = () => {
   const [messages, setMessages] = useState<{ role: string; text: string }[]>([]);
@@ -18,16 +15,18 @@ export const GeminiChat = () => {
     setLoading(true);
 
     try {
-      const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-      const chat = model.startChat({
-        history: messages.map(({ role, text }) => ({ role, parts: [{ text }] })),
-      });
+            const res = await fetch('/api/chatbot', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message: input }),
+        });
 
-      const result = await chat.sendMessage(input);
-      const response = result.response.text();
-      setMessages((prev) => [...prev, { role: "model", text: response }]);
+      const data = await res.json();
+      setMessages((prev) => [...prev, { role: "model", text: data.response }]);
     } catch (err) {
-      console.error("Error:", err);
+      console.error("Error sending message:", err);
     } finally {
       setLoading(false);
     }
