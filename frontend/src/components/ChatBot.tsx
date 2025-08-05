@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { X } from "lucide-react";
 
 export const GeminiChat = () => {
@@ -6,31 +6,68 @@ export const GeminiChat = () => {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const sendMessage = async () => {
-    if (!input.trim()) return;
-    const userMessage = { role: "user", text: input };
-    setMessages((prev) => [...prev, userMessage]);
-    setInput("");
-    setLoading(true);
+useEffect(() => {
+  messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+}, [messages]);
 
-    try {
-            const res = await fetch('/api/chatbot', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ message: input }),
-        });
 
-      const data = await res.json();
-      setMessages((prev) => [...prev, { role: "model", text: data.response }]);
-    } catch (err) {
-      console.error("Error sending message:", err);
-    } finally {
-      setLoading(false);
+const sendMessage = async () => {
+  if (!input.trim()) return;
+
+  const userMessage = { role: "user", text: input };
+
+  setMessages((prev) => [
+    ...prev,
+    userMessage,
+    { role: "model", text: "Typing..." }
+  ]);
+
+
+  setInput(""); 
+  setLoading(true);
+  setError(null);
+
+  try {
+    const res = await fetch("/api/chatbot", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: input }),
+    });
+
+    if (!res.ok) {
+      const error = await res.text();
+      console.error("❌ Server error response:", error);
+      throw new Error("Server error");
     }
-  };
+
+    const data = await res.json();
+    if (!data?.response) throw new Error("Empty response from server");
+
+    // Replace "Typing..." with real response
+    setMessages((prev) => {
+      const updated = [...prev];
+      updated[updated.length - 1] = { role: "model", text: data.response };
+      return updated;
+    });
+  } catch (err) {
+    console.error("❌ Error sending message:", err);
+    setError("Something went wrong. Please try again later.");
+
+    // Optionally replace "Typing..." with error message
+    setMessages((prev) => {
+      const updated = [...prev];
+      updated[updated.length - 1] = { role: "model", text: "⚠️ Failed to get response." };
+      return updated;
+    });
+  } finally {
+    setLoading(false);
+  }
+};
+
+
 
   return (
     <div className="fixed bottom-6 right-6 z-50">
@@ -86,8 +123,11 @@ export const GeminiChat = () => {
               {loading ? "..." : "Send"}
             </button>
           </div>
+          <div ref={messagesEndRef} />
         </div>
       )}
     </div>
   );
 };
+
+

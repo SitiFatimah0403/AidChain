@@ -48,4 +48,7 @@ function getAidChainBotResponse(userInput) {
   return "🤖 I'm not sure how to help with that. Try asking about donations, applying for aid, or NFT badges!";
 }
 
-module.exports = { getGeminiResponse };
+module.exports = {
+  getGeminiResponse,
+  getAidChainBotResponse, 
+};

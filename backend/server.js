@@ -1,22 +1,19 @@
-const express = require("express");
-const cors = require("cors");
-const dotenv = require("dotenv");
-const chatbotRoute = require("./api/chatbotRoute");
-
-dotenv.config();
-
+const express = require('express');
 const app = express();
-const port = process.env.PORT || 5001;
+const cors = require('cors');
 
+// Define the port here
+const PORT = process.env.PORT || 5001;
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 
-// Use chatbot API route
-app.use("/api", chatbotRoute);
+// Your routes go here
+app.get('/', (req, res) => {
+  res.send('AidChain AI backend is running!');
+});
 
-// Start server
-app.listen(port, () => {
-  console.log(`🚀 Server running at http://localhost:${port}`);
+// Start the server
+const server = app.listen(PORT, () => {
+  console.log(`🚀 Server running at http://localhost:${PORT}`);
 });

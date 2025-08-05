@@ -33,3 +33,4 @@ export default defineConfig({
 // It uses the `@vitejs/plugin-react` plugin for React support.
 // The `resolve.alias` section allows you to use '@' as an alias for the 'src' directory,
 // making imports cleaner and more manageable.
+
