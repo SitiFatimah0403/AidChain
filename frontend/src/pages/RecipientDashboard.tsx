@@ -244,7 +244,7 @@ export const RecipientDashboard: React.FC = () => {
                 <div className="bg-blue-50 p-4 rounded-lg">
                   <h3 className="font-semibold text-blue-900 mb-2">Aid Information</h3>
                   <ul className="text-sm text-blue-800 space-y-1">
-                    <li>• Each approved recipient can claim up to 0.01 ETH</li>
+                    <li>• Each approved recipient can only have their fund raise open for 14 days from date of launch</li>
                     <li>• Applications are automatically reviewed by our NFA system</li>
                     <li>• Legitimate requests are typically approved instantly</li>
                     <li>• You can only apply once per address</li>
@@ -293,7 +293,7 @@ export const RecipientDashboard: React.FC = () => {
                     <div className="p-4 bg-green-50 rounded-lg">
                       <h3 className="font-semibold text-green-900 mb-2">Ready to Claim!</h3>
                       <p className="text-sm text-green-800 mb-4">
-                        Your application has been approved. You can now claim your aid of 0.01 ETH.
+                        Your application has been approved. You can now claim your aid of ETH.
                       </p>
                       <button
                         onClick={handleClaimAid}
