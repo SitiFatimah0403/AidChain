@@ -8,6 +8,7 @@ import { useBadgeContract } from '@/hooks/useBadgeContract';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { isAdmin } from '@/admin/isAdmin';
+import { GeminiChat } from "@/components/ChatBot";
 
 //import css
 import PhoneInput from 'react-phone-input-2';
@@ -240,6 +241,10 @@ export const RecipientDashboard: React.FC = () => {
                     required
                   />
                 </div>
+
+                {/* ✅ Floating chatbot */}
+                <GeminiChat />
+                      
 
                 <div className="bg-blue-50 p-4 rounded-lg">
                   <h3 className="font-semibold text-blue-900 mb-2">Aid Information</h3>

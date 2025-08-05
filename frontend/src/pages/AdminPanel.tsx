@@ -238,7 +238,7 @@ const RecentActivity = ({ donations, claimed }) => (
               <span className="text-sm font-medium text-gray-900">{d.donor.slice(0, 6)}...{d.donor.slice(-4)}</span>
               <span className="text-sm font-semibold text-blue-600">{d.amount} ETH</span>
             </div>
-            <p className="text-xs text-gray-600 mt-1">{new Date(d.timestamp * 1000).toLocaleString()}</p>
+            <p className="text-xs text-gray-600 mt-1">{new Date(Number(d.timestamp) * 1000).toLocaleString()}</p>
           </div>
         ))}
       </div>
@@ -250,7 +250,7 @@ const RecentActivity = ({ donations, claimed }) => (
               <span className="text-sm font-medium text-gray-900">{r.recipient.slice(0, 6)}...{r.recipient.slice(-4)}</span>
               <span className="text-sm font-semibold text-green-600">0.01 ETH</span>
             </div>
-            <p className="text-xs text-gray-600 mt-1">{new Date(r.timestamp * 1000).toLocaleString()}</p>
+            <p className="text-xs text-gray-600 mt-1">{new Date(Number(r.timestamp) * 1000).toLocaleString()}</p>
           </div>
         ))}
       </div>
