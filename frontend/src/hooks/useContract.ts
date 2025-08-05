@@ -158,15 +158,20 @@ export const useContract = () => {
     });
 
     // to apply for aid - recipient only
-  const applyForAid = async (reason: string) =>
+  const applyForAid = async (
+    reason: string,
+    location: string,
+    name:string,
+    contact: string
+  ) =>
     await writeContract(config, {
-      address: CONTRACT_ADDRESS,
-      abi: AidChainAbi,
-      functionName: 'applyForAid',
-      args: [reason],
-      account: userAddress!,
-      chain: config.chains[0],
-    });
+    address: CONTRACT_ADDRESS,
+    abi: AidChainAbi,
+    functionName: 'applyForAid',
+    args: [reason, location, name, contact],
+    account: userAddress!,
+    chain: config.chains[0],
+  });
 
     //to approve a recipient for aid - admin & NFA
   const approveRecipient = async (recipient: string) =>

@@ -9,6 +9,10 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { isAdmin } from '@/admin/isAdmin';
 
+//import css
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
+
 export const RecipientDashboard: React.FC = () => {
   const { address, isConnected } = useAccount();
   const {
@@ -23,6 +27,10 @@ export const RecipientDashboard: React.FC = () => {
 
   const [aidReason, setAidReason] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [phone, setPhone] = useState('');
+  const [name, setName] = useState('');
+  const [reason, setReason] = useState('');
+
   const navigate = useNavigate();
 
     //if admin, then dia tak boleh masuk recipient dashboard
@@ -43,7 +51,12 @@ export const RecipientDashboard: React.FC = () => {
           const lat = position.coords.latitude.toFixed(6);
           const lon = position.coords.longitude.toFixed(6);
           const locationStr = `${lat},${lon}`;
-          //await applyForAid(aidReason, locationStr);
+          await applyForAid(
+            aidReason,
+            locationStr,
+            name,
+            phone
+          );
           setAidReason('');
           alert('Aid application submitted successfully!');
         },
@@ -177,6 +190,41 @@ export const RecipientDashboard: React.FC = () => {
                 Apply for Aid
               </h2>
               <form onSubmit={handleApplyForAid} className="space-y-4">
+                <div>
+                  <label htmlFor="recipient-name" className="block text-sm font-medium text-gray-700 mb-2">
+                    Name
+                  </label>
+                  <input
+                    id="recipient-name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    placeholder="Full Name"
+                    required
+                  />
+                </div>
+                <div className="mb-4">
+                  <label htmlFor="recipient-number" className="block text-sm font-medium text-gray-700 mb-2">
+                    Phone Number
+                  </label>
+                  <div className="border border-gray-300 rounded-md">
+                    <PhoneInput
+                      country={'my'}
+                      value={phone}
+                      onChange={setPhone}
+                      enableSearch={true}
+                      preferredCountries={['my']}
+                      inputProps={{
+                        name: 'phone',
+                        required: true,
+                        id: 'recipient-number',
+                      }}
+                      containerClass="w-full"
+                    inputClass="!w-full !pl-14 !pr-4 !py-2 !border !border-gray-300 !rounded-md !text-sm focus:!outline-none focus:!ring-2 focus:!ring-indigo-500"
+                    buttonClass="!border-none !bg-transparent !left-3"
+                    />
+                  </div>
+                </div>
                 <div>
                   <label htmlFor="reason" className="block text-sm font-medium text-gray-700 mb-2">
                     Reason for Aid Request
