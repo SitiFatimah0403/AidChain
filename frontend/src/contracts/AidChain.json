@@ -66,6 +66,16 @@
 				"internalType": "string",
 				"name": "location",
 				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "reason",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "contact",
+				"type": "string"
 			}
 		],
 		"name": "applyForAid",

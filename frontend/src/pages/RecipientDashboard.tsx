@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { Users, Clock, CheckCircle, Gift, AlertCircle } from 'lucide-react';
 import { useAccount } from 'wagmi';
@@ -33,6 +34,7 @@ export const RecipientDashboard: React.FC = () => {
   const [reason, setReason] = useState('');
 
   const navigate = useNavigate();
+  const queryClient = useQueryClient(); // to refetch latest contract data
 
     //if admin, then dia tak boleh masuk recipient dashboard
     useEffect(() => {
@@ -42,38 +44,43 @@ export const RecipientDashboard: React.FC = () => {
   }, [address]);
 
   const handleApplyForAid = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!aidReason.trim()) return;
+  e.preventDefault();
+  if (!aidReason.trim()) return;
 
-    try {
-      setIsSubmitting(true);
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const lat = position.coords.latitude.toFixed(6);
-          const lon = position.coords.longitude.toFixed(6);
-          const locationStr = `${lat},${lon}`;
-          await applyForAid(
-            aidReason,
-            locationStr,
-            name,
-            phone
-          );
-          console.log('✅ Aid application submitted!');
-          setAidReason('');
-          alert('Aid application submitted successfully!');
-        },
-        (error) => {
-          console.error('Location access denied', error);
-          alert('Please enable location to submit your application.');
-          setIsSubmitting(false);
-        }
-      );
-    } catch (error) {
-      console.error('Aid application failed:', error);
-      alert('Aid application failed. Please try again.');
-      setIsSubmitting(false);
-    }
-  };
+  try {
+    setIsSubmitting(true);
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const lat = position.coords.latitude.toFixed(6);
+        const lon = position.coords.longitude.toFixed(6);
+        const locationStr = `${lat},${lon}`;
+
+        await applyForAid(aidReason, locationStr, name, phone);
+
+        // Force refetch contract data so new request appears
+        await queryClient.invalidateQueries();
+        await new Promise((resolve) => setTimeout(resolve, 1000)); // wait a bit
+
+        // Clear form after successful submission
+        setAidReason('');
+        setName('');
+        setPhone('');
+        alert('Aid application submitted successfully!');
+      },
+      (error) => {
+        console.error('Location access denied', error);
+        alert('Please enable location to submit your application.');
+        setIsSubmitting(false);
+      }
+    );
+  } catch (error) {
+    console.error('Aid application failed:', error);
+    alert('Aid application failed. Please try again.');
+    setIsSubmitting(false);
+  }
+};
+
 
   const handleClaimAid = async () => {
     try {

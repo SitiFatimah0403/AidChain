@@ -12,6 +12,7 @@ export interface AidRequest {
   claimed: boolean;
 }
 
+
 export interface WalletState {
   address: string | null;
   isConnected: boolean;

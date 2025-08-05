@@ -8,6 +8,8 @@ import { config } from '@/wagmisetup';
 import { useMemo, useEffect, useState } from 'react';
 
 const CONTRACT_ADDRESS = import.meta.env.VITE_AID_CONTRACT as `0x${string}`;
+console.log("Loaded contract address:", CONTRACT_ADDRESS);
+
 const AidChainAbi = AidChainAbiJson.abi as Abi; // Cast the imported JSON ABI to the Abi type
 
 // This custom hook provides functions to interact with the AidChain smart contract.
@@ -67,6 +69,9 @@ export const useContract = () => {
 
   // Load full AidRequest details
   const [fullAidRequests, setFullAidRequests] = useState<AidRequest[]>([]);
+  console.log("📦 aidRequestsList.data:", aidRequestsList.data);
+console.log("📦 RAW aidRequestsList.data:", aidRequestsList.data);
+
 
   useEffect(() => {
     const fetchDetails = async () => {
