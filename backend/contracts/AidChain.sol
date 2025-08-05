@@ -86,7 +86,6 @@ contract AidChain is ERC721, Ownable {
     //FUNCTION - for users to applyForAid
     function applyForAid(string memory reason, string memory location, string memory name, string memory contact) external {
         require(bytes(reason).length > 0, "Reason cannot be empty");
-        // require(aidRequests[msg.sender].recipient == address(0), "Already applied");    //nak elak same user apply multiple times   // ni mcm dh xperlu juga?
         require(block.timestamp >= lastClaimedAt[msg.sender] + 90 days, "Wait 3 months before reapplying"); //user blh apply balik aftr 3 bulan
         require(!hasAppliedByCycle[currentCycleId][msg.sender], "Already applied"); //user dh apply utk current cycle
         
@@ -136,7 +135,7 @@ contract AidChain is ERC721, Ownable {
     
     function claimAid() external {  //recipient can claim after 14days 
         require(approvedRecipients[msg.sender], "Not approved for aid");
-        require(!hasClaimedAid[msg.sender], "Already claimed aid");
+        require(!hasClaimedAidByCycle[currentCycleId][msg.sender], "Already claimed");
         require(block.timestamp >= currentCycleStart + donationCycleDuration, "Wait until 14 days passed");
 
         cycleClaimed = true;
