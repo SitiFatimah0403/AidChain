@@ -209,7 +209,7 @@ useEffect(() => {
       {/* Form or Status View */}
       <div className="grid lg:grid-cols-2 gap-8">
         <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
-          {/*<p>userRequest exists: {userRequest ? '✅ YES' : '❌ NO'}</p>*/}
+          {/*NAK TESTING <p>userRequest exists: {userRequest ? '✅ YES' : '❌ NO'}</p>*/}
             {!userRequest ? (
             <>
               <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
