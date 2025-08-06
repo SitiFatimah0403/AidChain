@@ -217,7 +217,7 @@ export const DonorDashboard: React.FC = () => {
             </div>
           ) : contractState.donations.length > 0 ? (
             <div className="space-y-4 max-h-96 overflow-y-auto">
-              {contractState.donations.slice(-10).reverse().map((donation, index) => (
+              {contractState.donations.filter(d => d.donor.toLowerCase() === address?.toLowerCase()).slice(-10).reverse().map((donation, index) => (
                 <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                   <div>
                     <p className="font-medium text-gray-900">
