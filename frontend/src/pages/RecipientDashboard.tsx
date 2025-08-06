@@ -141,7 +141,14 @@ useEffect(() => {
     (r) => r.recipient.toLowerCase() === address.toLowerCase()
   );
 
-  
+  console.log("👤 Matched userRequest:", userRequest);
+  if (userRequest) {
+  console.log("✅ Approved:", userRequest.approved);
+  console.log("❌ Claimed:", userRequest.claimed);
+  console.log("🧠 Type of claimed:", typeof userRequest.claimed);
+}
+
+
   return (
     <div className="space-y-8">
       <div className="text-center">
@@ -202,7 +209,8 @@ useEffect(() => {
       {/* Form or Status View */}
       <div className="grid lg:grid-cols-2 gap-8">
         <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
-          {!contractState.userHasApplied ? (
+          {/*<p>userRequest exists: {userRequest ? '✅ YES' : '❌ NO'}</p>*/}
+            {!userRequest ? (
             <>
               <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
                 <Users className="h-6 w-6 text-blue-600 mr-2" />
@@ -353,29 +361,29 @@ useEffect(() => {
         </div>
 
         <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
-  <h2 className="text-2xl font-bold text-gray-900 mb-6">Recent Aid Requests</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Recent Aid Requests</h2>
 
-  {loading ? (
-    <div className="text-center py-8">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
-      <p className="text-gray-600 mt-2">Loading requests...</p>
-    </div>
-  ) : contractState.aidRequests && contractState.aidRequests.length > 0 ? (
-    <div className="space-y-4 max-h-96 overflow-y-auto">
-      {contractState.aidRequests.slice(-10).reverse().map((request, index) => (
-        <div key={index} className="p-4 bg-gray-50 rounded-lg">
-          <div className="flex items-center justify-between mb-2">
-            <span className="font-medium text-gray-900">
-              {request.recipient.slice(0, 6)}...{request.recipient.slice(-4)}
-            </span>
-            <span
-              className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                request.approved,
-                request.claimed
-              )}`}
-            >
-              {getStatusText(request.approved, request.claimed)}
-            </span>
+          {loading ? (
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
+              <p className="text-gray-600 mt-2">Loading requests...</p>
+            </div>
+          ) : contractState.aidRequests && contractState.aidRequests.length > 0 ? (
+            <div className="space-y-4 max-h-96 overflow-y-auto">
+              {contractState.aidRequests.slice(-10).reverse().map((request, index) => (
+                <div key={index} className="p-4 bg-gray-50 rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-medium text-gray-900">
+                      {request.recipient.slice(0, 6)}...{request.recipient.slice(-4)}
+                    </span>
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                        request.approved,
+                        request.claimed
+                      )}`}
+                    >
+                      {getStatusText(request.approved, request.claimed)}
+                    </span>
           </div>
 
           <p className="text-sm text-gray-700"><strong>Name:</strong> {request.name}</p>
@@ -420,3 +428,5 @@ useEffect(() => {
     </div>
   );
 };
+
+                  
