@@ -8,10 +8,7 @@ export const AdminPanel: React.FC = () => {
   const { address: userAddress, isConnected } = useAccount();
   const {
     contractState,
-    donate,
-    applyForAid,
     approveRecipient,
-    claimAid,
     mintDonorNFT,
     mintRecipientNFT,
     loading
@@ -160,7 +157,10 @@ const AidRequests = ({ loading, requests, handleApprove, isSubmitting }) => (
                 )}
               </div>
             </div>
-            <p className="text-sm text-gray-600 mb-1">{r.reason}</p>
+            <p className="text-sm text-gray-600 mb-1">Reason: {r.reason}</p>
+            <p className="text-sm text-gray-600 mb-1">Name: {r.name}</p>
+            <p className="text-sm text-gray-600 mb-1">Contact: {r.contact}</p>
+            <p className="text-sm text-gray-600 mb-1">Location: {r.location}</p>
             <p className="text-xs text-gray-500">Applied: {new Date(r.timestamp * 1000).toLocaleDateString()}</p>
           </div>
         ))}
