@@ -10,7 +10,11 @@ export interface AidRequest {
   timestamp: number;
   approved: boolean;
   claimed: boolean;
+  location: string;
+  name: string;
+  contact: string;
 }
+
 
 
 export interface WalletState {

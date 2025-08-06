@@ -80,42 +80,29 @@ console.log("📦 RAW aidRequestsList.data:", aidRequestsList.data);
 
       const detailedRequests = await Promise.all(
         addresses.map(async (addr) => {
-          const [req, approved, claimed] = await Promise.all([
-  readContract(config, {
-    address: CONTRACT_ADDRESS,
-    abi: AidChainAbi,
-    functionName: 'aidRequests',
-    args: [addr],
-  }) as Promise<AidRequest>,
-
-  readContract(config, {
-    address: CONTRACT_ADDRESS,
-    abi: AidChainAbi,
-    functionName: 'approvedRecipients',
-    args: [addr],
-  }) as Promise<boolean>,
-
-  readContract(config, {
-    address: CONTRACT_ADDRESS,
-    abi: AidChainAbi,
-    functionName: 'hasClaimedAid',
-    args: [addr],
-  }) as Promise<boolean>,
-]);
-
+          const req = await readContract(config, {
+            address: CONTRACT_ADDRESS,
+            abi: AidChainAbi,
+            functionName: 'aidRequests',
+            args: [addr],
+          });
 
           return {
             recipient: addr,
-            reason: req.reason,
-            timestamp: Number(req.timestamp),
-            approved,
-            claimed,
+            reason: req[1],
+            timestamp: Number(req[2]),
+            approved: req[3],
+            claimed: req[4],
+            location: req[5],
+            name: req[6],
+            contact: req[7],
           };
         })
       );
 
       setFullAidRequests(detailedRequests);
     };
+
 
     fetchDetails();
   }, [aidRequestsList.data]);
@@ -150,6 +137,7 @@ console.log("📦 RAW aidRequestsList.data:", aidRequestsList.data);
     hasClaimed.data,
     hasDonated.data,
   ]);
+
 
   // Write actions
   const donate = async (amount: string) =>

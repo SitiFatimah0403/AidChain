@@ -15,6 +15,7 @@ import { GeminiChat } from "@/components/ChatBot";
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
 
+
 export const RecipientDashboard: React.FC = () => {
   const { address, isConnected } = useAccount();
   const {
@@ -42,6 +43,8 @@ export const RecipientDashboard: React.FC = () => {
       navigate('/admin');
     }
   }, [address]);
+
+  
 
   const handleApplyForAid = async (e: React.FormEvent) => {
   e.preventDefault();
@@ -128,10 +131,17 @@ export const RecipientDashboard: React.FC = () => {
     );
   }
 
+  // 🔍 DEBUGGING: Log aid requests
+useEffect(() => {
+  console.log("📦 contractState.aidRequests:", contractState.aidRequests);
+}, [contractState.aidRequests]);
+
+
   const userRequest = contractState.aidRequests.find(
     (r) => r.recipient.toLowerCase() === address.toLowerCase()
   );
 
+  
   return (
     <div className="space-y-8">
       <div className="text-center">
@@ -343,43 +353,49 @@ export const RecipientDashboard: React.FC = () => {
         </div>
 
         <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Recent Aid Requests</h2>
-          {loading ? (
-            <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
-              <p className="text-gray-600 mt-2">Loading requests...</p>
-            </div>
-          ) : contractState.aidRequests.length > 0 ? (
-            <div className="space-y-4 max-h-96 overflow-y-auto">
-              {contractState.aidRequests.slice(-10).reverse().map((request, index) => (
-                <div key={index} className="p-4 bg-gray-50 rounded-lg">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-medium text-gray-900">
-                      {request.recipient.slice(0, 6)}...{request.recipient.slice(-4)}
-                    </span>
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                        request.approved,
-                        request.claimed
-                      )}`}
-                    >
-                      {getStatusText(request.approved, request.claimed)}
-                    </span>
-                  </div>
-                  <p className="text-sm text-gray-600 mb-1">{request.reason}</p>
-                  <p className="text-xs text-gray-500">
-                    {new Date(request.timestamp * 1000).toLocaleDateString()}
-                  </p>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8">
-              <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600">No aid requests yet.</p>
-            </div>
-          )}
+  <h2 className="text-2xl font-bold text-gray-900 mb-6">Recent Aid Requests</h2>
+
+  {loading ? (
+    <div className="text-center py-8">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
+      <p className="text-gray-600 mt-2">Loading requests...</p>
+    </div>
+  ) : contractState.aidRequests && contractState.aidRequests.length > 0 ? (
+    <div className="space-y-4 max-h-96 overflow-y-auto">
+      {contractState.aidRequests.slice(-10).reverse().map((request, index) => (
+        <div key={index} className="p-4 bg-gray-50 rounded-lg">
+          <div className="flex items-center justify-between mb-2">
+            <span className="font-medium text-gray-900">
+              {request.recipient.slice(0, 6)}...{request.recipient.slice(-4)}
+            </span>
+            <span
+              className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                request.approved,
+                request.claimed
+              )}`}
+            >
+              {getStatusText(request.approved, request.claimed)}
+            </span>
+          </div>
+
+          <p className="text-sm text-gray-700"><strong>Name:</strong> {request.name}</p>
+          <p className="text-sm text-gray-700"><strong>Contact:</strong> {request.contact}</p>
+          <p className="text-sm text-gray-700"><strong>Location:</strong> {request.location}</p>
+          <p className="text-sm text-gray-600 mb-1"><strong>Reason:</strong> {request.reason}</p>
+          <p className="text-xs text-gray-500">
+            {new Date(request.timestamp * 1000).toLocaleDateString()}
+          </p>
         </div>
+      ))}
+    </div>
+  ) : (
+    <div className="text-center py-8">
+      <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+      <p className="text-gray-600">No aid requests yet.</p>
+    </div>
+  )}
+</div>
+
       </div>
 
       <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl p-8 text-white">
