@@ -87,7 +87,7 @@ const sendMessage = async () => {
         <div className="w-80 h-[450px] bg-white rounded-lg shadow-xl flex flex-col border border-gray-300">
           {/* Header */}
           <div className="flex justify-between items-center p-3 border-b bg-blue-600 text-white rounded-t-lg">
-            <h2 className="font-semibold text-sm">AidChain Assistant</h2>
+            <h2 className="font-semibold text-sm">AidChainBot 🤖</h2>
             <button onClick={() => setIsOpen(false)} className="hover:text-gray-200">
               <X size={18} />
             </button>

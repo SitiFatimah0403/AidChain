@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getGeminiResponse , getAidChainBotResponse } = require('../services/aidChatBot'); // This is your Gemini call function
+const { getGeminiResponse , getAidChainBotResponse , isAidChainRelevant } = require('../services/aidChatBot'); // This is your Gemini call function
 
 // Chatbot route to handle user messages
 router.post('/chatbot', async (req, res) => {
@@ -13,9 +13,9 @@ router.post('/chatbot', async (req, res) => {
 
     let reply = await getGeminiResponse(userMessage);
 
-    // If Gemini failed, fallback to AidChainBot
-    if (!reply) {
-      console.warn("⚠️ Gemini failed. Using fallback bot.");
+     //  If Gemini fails or gives unrelated response, use fallback
+    if (!reply || !isAidChainRelevant(reply)) {
+      console.warn("⚠️ Gemini failed or went off-topic. Using fallback.");
       reply = getAidChainBotResponse(userMessage);
     }
 
