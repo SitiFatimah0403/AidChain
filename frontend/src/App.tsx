@@ -8,13 +8,13 @@ import { RecipientDashboard } from '@/pages/RecipientDashboard';
 import { AdminPanel } from '@/pages/AdminPanel';
 import { AdminRoute } from '@/admin/adminRoute';
 import { isAdmin } from '@/admin/isAdmin';
-
+import ApprovedRecipients from '@/pages/ApprovedRecipients';
 
 function App() {
   const { address } = useAccount();
   const showAdminOnly = address && isAdmin(address);
 
- return (
+  return (
     <Router>
       <Layout>
         <Routes>
@@ -40,6 +40,7 @@ function App() {
               <Route path="/recipient" element={<RecipientDashboard />} />
               {/* Prevent normal users from accessing /admin */}
               <Route path="/admin" element={<Navigate to="/" />} />
+              <Route path="/recipientsList" element={<ApprovedRecipients />} />
             </>
           )}
         </Routes>

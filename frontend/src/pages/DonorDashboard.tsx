@@ -7,7 +7,7 @@ import { useEffect } from 'react';
 import { isAdmin } from '@/admin/isAdmin';
 import { GeminiChat } from "@/components/ChatBot";
 import { formatEther } from 'viem';
-
+import { useSearchParams } from 'react-router-dom';
 
 
 export const DonorDashboard: React.FC = () => {
@@ -20,6 +20,14 @@ export const DonorDashboard: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const [selectedRecipient, setSelectedRecipient] = useState('');
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    const prefilledRecipient = searchParams.get("recipient");
+    if (prefilledRecipient) {
+      setSelectedRecipient(prefilledRecipient);
+    }
+  }, [searchParams]);
 
   //if admin, then dia tak boleh masuk donor dashboard
   useEffect(() => {
@@ -124,9 +132,18 @@ export const DonorDashboard: React.FC = () => {
 
           <form onSubmit={handleDonate} className="space-y-4">
             <div>
-              <label htmlFor="recipient" className="block text-sm font-medium text-gray-700 mb-2">
-                Choose Recipient
-              </label>
+              <div className="flex justify-between items-center mb-2">
+                <label htmlFor="recipient" className="block text-sm font-medium text-gray-700">
+                  Choose Recipient
+                </label>
+                <button
+                  type="button"
+                  onClick={() => navigate('/recipientsList')}
+                  className="text-indigo-600 text-sm underline hover:text-indigo-800"
+                >
+                  See Lists
+                </button>
+              </div>
               <select
                 id="recipient"
                 value={selectedRecipient}
