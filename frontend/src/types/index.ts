@@ -1,5 +1,6 @@
 export interface Donation {
   donor: string;
+  recipient: string;
   amount: string;
   timestamp: number;
 }

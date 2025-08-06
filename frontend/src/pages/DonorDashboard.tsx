@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { isAdmin } from '@/admin/isAdmin';
 import { GeminiChat } from "@/components/ChatBot";
-
+import { formatEther } from 'viem';
 
 
 
@@ -19,13 +19,14 @@ export const DonorDashboard: React.FC = () => {
   const [donationAmount, setDonationAmount] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
+  const [selectedRecipient, setSelectedRecipient] = useState('');
 
   //if admin, then dia tak boleh masuk donor dashboard
   useEffect(() => {
-  if (isAdmin(address)) {
-    navigate('/admin');
-  }
-}, [address]);
+    if (isAdmin(address)) {
+      navigate('/admin');
+    }
+  }, [address]);
 
   const handleDonate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,7 +34,7 @@ export const DonorDashboard: React.FC = () => {
 
     try {
       setIsSubmitting(true);
-      await donate(donationAmount);
+      await donate(selectedRecipient, donationAmount);
       setDonationAmount('');
       alert('Donation successful! Thank you for your contribution.');
     } catch (error) {
@@ -47,13 +48,13 @@ export const DonorDashboard: React.FC = () => {
   const handleMintNFT = async () => {
     if (!address) return;
 
-try {
-  await mintDonorNFT(address); // ✅ now passing the address
-  alert('Donor NFT minted successfully!');
-} catch (error) {
-  console.error('NFT minting failed:', error);
-  alert('NFT minting failed. Please try again.');
-}
+    try {
+      await mintDonorNFT(address); // ✅ now passing the address
+      alert('Donor NFT minted successfully!');
+    } catch (error) {
+      console.error('NFT minting failed:', error);
+      alert('NFT minting failed. Please try again.');
+    }
   };
 
   if (!isConnected) {
@@ -78,7 +79,10 @@ try {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Total Donated</p>
-              <p className="text-2xl font-bold text-gray-900">{contractState.totalDonated} ETH</p>
+              <p className="text-2xl font-bold text-gray-900">{contractState.donations
+                .filter(d => d.donor.toLowerCase() === address?.toLowerCase())
+                .reduce((sum, d) => sum + parseFloat(formatEther(BigInt(d.amount))), 0)
+                .toFixed(3)} ETH</p>
             </div>
             <TrendingUp className="h-8 w-8 text-green-600" />
           </div>
@@ -88,7 +92,7 @@ try {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Total Donations</p>
-              <p className="text-2xl font-bold text-gray-900">{contractState.donations.length}</p>
+              <p className="text-2xl font-bold text-gray-900">{contractState.donations.filter(d => d.donor.toLowerCase() === address?.toLowerCase()).length}</p>
             </div>
             <Heart className="h-8 w-8 text-red-600" />
           </div>
@@ -126,6 +130,28 @@ try {
 
           <form onSubmit={handleDonate} className="space-y-4">
             <div>
+              <label htmlFor="recipient" className="block text-sm font-medium text-gray-700 mb-2">
+                Choose Recipient
+              </label>
+              <select
+                id="recipient"
+                value={selectedRecipient}
+                onChange={(e) => setSelectedRecipient(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                required
+              >
+                <option value="">-- Select Recipient --</option>
+                {contractState.aidRequests
+                  .filter(r => r.approved && !r.claimed)
+                  .map((r, index) => (
+                    <option key={index} value={r.recipient}>
+                      {r.name} - {r.recipient.slice(0, 6)}...{r.recipient.slice(-4)}
+                    </option>
+                  ))}
+              </select>
+            </div>
+
+            <div>
               <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-2">
                 Donation Amount (ETH)
               </label>
@@ -137,7 +163,7 @@ try {
                 value={donationAmount}
                 onChange={(e) => setDonationAmount(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                placeholder="0.01"
+                placeholder="minimum 0.001"
                 required
               />
             </div>
@@ -145,13 +171,13 @@ try {
             <div className="bg-blue-50 p-4 rounded-lg">
               <h3 className="font-semibold text-blue-900 mb-2">Your Impact</h3>
               <p className="text-sm text-blue-800">
-                Your donation will be distributed to approved recipients who need assistance. 
+                Your donation will be distributed to approved recipients who need assistance.
                 Each recipient can claim up to 0.01 ETH to help with their needs.
               </p>
             </div>
 
-             {/* ✅ Floating chatbot */}
-              <GeminiChat />
+            {/* ✅ Floating chatbot */}
+            <GeminiChat />
 
             <button
               type="submit"
@@ -183,7 +209,7 @@ try {
 
         <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">Recent Donations</h2>
-          
+
           {loading ? (
             <div className="text-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
@@ -195,7 +221,7 @@ try {
                 <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                   <div>
                     <p className="font-medium text-gray-900">
-                      {donation.donor.slice(0, 6)}...{donation.donor.slice(-4)}
+                      {donation.recipient.slice(0, 6)}...{donation.recipient.slice(-4)}
                     </p>
                     <p className="text-sm text-gray-600">
                       {new Date(Number(donation.timestamp) * 1000).toLocaleDateString()}
@@ -203,7 +229,7 @@ try {
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold text-indigo-600">{donation.amount} ETH</p>
+                    <p className="font-semibold text-indigo-600"> {formatEther(BigInt(donation.amount))}  ETH</p>
                   </div>
                 </div>
               ))}
