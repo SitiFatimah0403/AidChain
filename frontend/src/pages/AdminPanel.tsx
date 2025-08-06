@@ -3,6 +3,7 @@ import { Shield, Users, CheckCircle, XCircle, AlertTriangle, Gift } from 'lucide
 import { useContract } from '@/hooks/useContract';
 import { useAccount } from 'wagmi';
 import { isAdmin } from '@/admin/isAdmin'; 
+import { useQueryClient } from '@tanstack/react-query';
 
 export const AdminPanel: React.FC = () => {
   const { address: userAddress, isConnected } = useAccount();
@@ -17,6 +18,8 @@ export const AdminPanel: React.FC = () => {
     loading
   } = useContract();
 
+  const queryClient = useQueryClient();
+
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isAdmin = isConnected;
@@ -25,6 +28,10 @@ export const AdminPanel: React.FC = () => {
     try {
       setIsSubmitting(true);
       await approveRecipient(recipient);
+
+      // 🟢 Force refresh contractState after mutation
+      await queryClient.invalidateQueries(); 
+
       alert('Recipient approved successfully!');
     } catch (error) {
       console.error('Approval failed:', error);
@@ -33,6 +40,7 @@ export const AdminPanel: React.FC = () => {
       setIsSubmitting(false);
     }
   };
+
 
   const handleMintDonorNFT = async (donor: string) => {
     try {
@@ -66,7 +74,7 @@ export const AdminPanel: React.FC = () => {
 
   const pendingRequests = contractState.aidRequests.filter(r => !r.approved);
   const approvedRequests = contractState.aidRequests.filter(r => r.approved && !r.claimed);
-  const claimedRequests = contractState.aidRequests.filter(r => r.claimed);
+  const claimedRequests = contractState.aidRequests.filter(r => r.approved);
 
   return (
     <div className="space-y-8">
