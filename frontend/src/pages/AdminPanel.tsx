@@ -224,7 +224,7 @@ const NFTManagement = ({ donations, claimedRequests, handleMintDonor, handleMint
               <div key={i} className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
                 <div className="flex flex-col">
                     <span className="text-sm font-medium text-gray-900">
-                      {r.slice(0, 6)}...{r.slice(-4)}
+                      {r.recipient.slice(0, 6)}...{r.recipient.slice(-4)}
                     </span>
                   </div>
                 <button
