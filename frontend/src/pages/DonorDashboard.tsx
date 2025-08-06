@@ -74,15 +74,17 @@ export const DonorDashboard: React.FC = () => {
         <p className="text-xl text-gray-600">Make a difference with transparent blockchain donations</p>
       </div>
 
-      <div className="grid md:grid-cols-4 gap-6">
+      <div className="grid md:grid-cols-3 gap-6">
         <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Total Donated</p>
-              <p className="text-2xl font-bold text-gray-900">{contractState.donations
-                .filter(d => d.donor.toLowerCase() === address?.toLowerCase())
-                .reduce((sum, d) => sum + parseFloat(formatEther(BigInt(d.amount))), 0)
-                .toFixed(3)} ETH</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {contractState.donations
+                  .filter(d => d.donor.toLowerCase() === address?.toLowerCase())
+                  .reduce((sum, d) => sum + parseFloat(formatEther(BigInt(d.amount))), 0)
+                  .toFixed(3)} ETH
+              </p>
             </div>
             <TrendingUp className="h-8 w-8 text-green-600" />
           </div>
@@ -92,19 +94,11 @@ export const DonorDashboard: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Total Donations</p>
-              <p className="text-2xl font-bold text-gray-900">{contractState.donations.filter(d => d.donor.toLowerCase() === address?.toLowerCase()).length}</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {contractState.donations.filter(d => d.donor.toLowerCase() === address?.toLowerCase()).length}
+              </p>
             </div>
-            <Heart className="h-8 w-8 text-red-600" />
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">People Helped</p>
-              <p className="text-2xl font-bold text-gray-900">{contractState.aidRequests.filter(r => r.claimed).length}</p>
-            </div>
-            <Users className="h-8 w-8 text-blue-600" />
+            <Users className="h-8 w-8 text-red-600" />
           </div>
         </div>
 
@@ -171,8 +165,7 @@ export const DonorDashboard: React.FC = () => {
             <div className="bg-blue-50 p-4 rounded-lg">
               <h3 className="font-semibold text-blue-900 mb-2">Your Impact</h3>
               <p className="text-sm text-blue-800">
-                Your donation will be distributed to approved recipients who need assistance.
-                Each recipient can claim up to 0.01 ETH to help with their needs.
+                Every recipient has been pre-approved based on need, ensuring your donation makes a real difference.
               </p>
             </div>
 
@@ -215,7 +208,7 @@ export const DonorDashboard: React.FC = () => {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
               <p className="text-gray-600 mt-2">Loading donations...</p>
             </div>
-          ) : contractState.donations.length > 0 ? (
+          ) : contractState.donations.some(d => d.donor.toLowerCase() === address?.toLowerCase()) ? (
             <div className="space-y-4 max-h-96 overflow-y-auto">
               {contractState.donations.filter(d => d.donor.toLowerCase() === address?.toLowerCase()).slice(-10).reverse().map((donation, index) => (
                 <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
@@ -237,7 +230,7 @@ export const DonorDashboard: React.FC = () => {
           ) : (
             <div className="text-center py-8">
               <Heart className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600">No donations yet. Be the first to contribute!</p>
+              <p className="text-gray-600">No donations yet. Your support could make a difference.</p>
             </div>
           )}
         </div>
