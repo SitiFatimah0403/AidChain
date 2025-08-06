@@ -140,11 +140,12 @@ console.log("📦 RAW aidRequestsList.data:", aidRequestsList.data);
 
 
   // Write actions
-  const donate = async (amount: string) =>
+  const donate = async (recipient: string, amount: string) =>
     await writeContract(config, {
       abi: AidChainAbi,
       address: CONTRACT_ADDRESS,
       functionName: 'donate', //send donation to the contract
+      args: [recipient],
       account: userAddress,
       value: parseEther(amount),
       chain: config.chains[0],

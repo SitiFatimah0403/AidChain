@@ -39,6 +39,7 @@ contract AidChain is ERC721, Ownable {
     
     struct Donation {
         address donor;
+        address recipient;
         uint256 amount;
         uint256 timestamp;
     }
@@ -68,11 +69,13 @@ contract AidChain is ERC721, Ownable {
     event RejectedByNFA(address indexed recipient, string reason); // newly added by ain
 
     
-    function donate() external payable {
+    function donate(address recipient) external payable {
         require(msg.value > 0, "Donation must be greater than 0");
+        require(approvedRecipients[recipient], "Recipient not approved");
         
         donations.push(Donation({
             donor: msg.sender,
+            recipient: recipient,
             amount: msg.value,
             timestamp: block.timestamp
         }));
