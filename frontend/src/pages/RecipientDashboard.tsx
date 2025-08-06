@@ -101,13 +101,17 @@ export const RecipientDashboard: React.FC = () => {
   const handleMintNFT = async () => {
     if (!address) return;
     try {
-      await mintBadge(address, 'recipient');
+      // link badge nanti
+      const metadataURI = 'ipfs://bafkreialgqe52m2frhwkzqjmedu2pnk3b65yvvuyn6rn4texztlaxbgule';
+
+      await mintBadge(address, metadataURI); 
       alert('Recipient NFT minted successfully!');
     } catch (error) {
       console.error('NFT minting failed:', error);
       alert('NFT minting failed. Please try again.');
     }
   };
+
 
   const getStatusColor = (approved: boolean, claimed: boolean) => {
     if (claimed) return 'text-green-600 bg-green-100';
@@ -330,7 +334,8 @@ useEffect(() => {
                         disabled={isSubmitting}
                         className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-6 py-2 rounded-md font-semibold transition-colors"
                       >
-                        {isSubmitting ? 'Claiming...' : 'Claim Aid (0.01 ETH)'}
+                        {isSubmitting   ? 'Claiming...'
+                         : `Claim Aid (${contractState.aidAmount || '...'} ETH)`}
                       </button>
                     </div>
                   )}

@@ -1,0 +1,15 @@
+{
+  "name": "AidChain Donor Badge",
+  "description": "Awarded to generous donors supporting AidChain recipients.",
+  "image": "ipfs://bafkreifm6xiu4faoas3evogreo6uuklzlsmxhoarcrxeazpm57vhqplqnu",
+  "attributes": [
+    {
+      "trait_type": "Role",
+      "value": "Donor"
+    },
+    {
+      "trait_type": "Donation Round",
+      "value": "Cycle 1"
+    }
+  ]
+}

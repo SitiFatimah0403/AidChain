@@ -67,6 +67,13 @@ export const useContract = () => {
     query: { enabled: !!userAddress },
   });
 
+  const aidAmount = useReadContract({
+  address: CONTRACT_ADDRESS,
+  abi: AidChainAbi,
+  functionName: 'AID_AMOUNT',
+});
+
+
   // Load full AidRequest details
   const [fullAidRequests, setFullAidRequests] = useState<AidRequest[]>([]);
   console.log("📦 aidRequestsList.data:", aidRequestsList.data);
@@ -120,6 +127,7 @@ console.log("📦 RAW aidRequestsList.data:", aidRequestsList.data);
     totalDonated: totalDonated.data ? String(Number(totalDonated.data) / 1e18) : '0',
     donations: (getDonations.data ?? []) as Donation[],
     aidRequests: fullAidRequests,
+    aidAmount: aidAmount.data ? String(Number(aidAmount.data) / 1e18) : '0',
     
     userHasApplied:
       !!(userReq.data as AidRequest)?.recipient &&
@@ -132,10 +140,12 @@ console.log("📦 RAW aidRequestsList.data:", aidRequestsList.data);
     totalDonated.data,
     getDonations.data,
     fullAidRequests,
+    aidAmount.data,
     userReq.data,
     isApproved.data,
     hasClaimed.data,
     hasDonated.data,
+
   ]);
 
 

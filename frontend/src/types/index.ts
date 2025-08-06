@@ -33,4 +33,5 @@ export interface ContractState {
   userHasApplied: boolean;
   userIsApproved: boolean;
   userHasClaimed: boolean;
+  aidAmount: string; 
 }
