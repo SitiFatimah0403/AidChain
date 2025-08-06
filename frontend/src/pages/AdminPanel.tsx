@@ -240,30 +240,41 @@ const RecentActivity = ({ donations, claimed }) => (
     <div className="grid md:grid-cols-2 gap-4">
       <div>
         <h3 className="font-semibold text-gray-900 mb-2">Recent Donations</h3>
-        {(donations as any[]).slice(-6).reverse().map((d, i) => (
-          <div key={i} className="p-3 bg-blue-50 rounded-lg">
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-medium text-gray-900">{d.donor.slice(0, 6)}...{d.donor.slice(-4)}</span>
-              <span className="text-sm font-semibold text-blue-600">{d.amount} ETH</span>
-            </div>
-            <p className="text-xs text-gray-600 mt-1">
-            {new Date(Number(d.timestamp) * 1000).toLocaleDateString('en-GB')} {new Date(Number(d.timestamp) * 1000).toLocaleTimeString('en-GB')}
-          </p>
+        <div className="space-y-2">
+            {donations.slice(-6).reverse().map((d, i) => (
+              <div key={i} className="p-3 bg-blue-50 rounded-lg">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-medium text-gray-900">
+                    {d.donor.slice(0, 6)}...{d.donor.slice(-4)}
+                  </span>
+                  <span className="text-sm font-semibold text-blue-600">
+                    {d.amount} ETH
+                  </span>
+                </div>
+                <p className="text-xs text-gray-600 mt-1">
+                  {new Date(Number(d.timestamp) * 1000).toLocaleDateString('en-GB')}{' '}
+                  {new Date(Number(d.timestamp) * 1000).toLocaleTimeString('en-GB')}
+                </p>
+              </div>
+            ))}
           </div>
-        ))}
       </div>
-      <div>
-        <h3 className="font-semibold text-gray-900 mb-2">Recent Claims</h3>
-        {claimed.slice(-6).reverse().map((r, i) => (
-          <div key={i} className="p-3 bg-green-50 rounded-lg">
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-medium text-gray-900">{r.recipient.slice(0, 6)}...{r.recipient.slice(-4)}</span>
-              <span className="text-sm font-semibold text-green-600">0.01 ETH</span>
-            </div>
-            <p className="text-xs text-gray-600 mt-1">{new Date(Number(r.timestamp) * 1000).toLocaleString()}</p>
+          <div>
+            <h3 className="font-semibold text-gray-900 mb-5">Recent Claims</h3>
+            {claimed.slice(-6).reverse().map((r, i) => (
+              <div key={i} className="p-3  bg-green-50 rounded-lg mb-5">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-medium text-gray-900">
+                    {r.recipient.slice(0, 6)}...{r.recipient.slice(-4)}
+                  </span>
+                  <span className="text-sm font-semibold text-green-600">0.01 ETH</span>
+                </div>
+                <p className="text-xs text-gray-600 mt-1">
+                  {new Date(Number(r.timestamp) * 1000).toLocaleString()}
+                </p>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
     </div>
   </div>
 );

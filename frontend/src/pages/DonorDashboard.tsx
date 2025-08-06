@@ -224,7 +224,7 @@ export const DonorDashboard: React.FC = () => {
                       {donation.recipient.slice(0, 6)}...{donation.recipient.slice(-4)}
                     </p>
                     <p className="text-sm text-gray-600">
-                      {new Date(Number(donation.timestamp) * 1000).toLocaleDateString()}
+                      {new Date(Number(donation.timestamp) * 1000).toLocaleDateString('en-GB')} {new Date(Number(donation.timestamp) * 1000).toLocaleTimeString('en-GB')}
 
                     </p>
                   </div>

@@ -315,7 +315,7 @@ useEffect(() => {
                     </p>
                     <p className="text-sm text-gray-600">
                       <strong>Applied:</strong>{' '}
-                      {new Date(userRequest.timestamp * 1000).toLocaleDateString()}
+                      {new Date(Number(userRequest.timestamp) * 1000).toLocaleDateString('en-GB')} {new Date(Number(userRequest.timestamp) * 1000).toLocaleTimeString('en-GB')}
                     </p>
                   </div>
 
@@ -391,7 +391,7 @@ useEffect(() => {
           <p className="text-sm text-gray-700"><strong>Location:</strong> {request.location}</p>
           <p className="text-sm text-gray-600 mb-1"><strong>Reason:</strong> {request.reason}</p>
           <p className="text-xs text-gray-500">
-            {new Date(request.timestamp * 1000).toLocaleDateString()}
+            {new Date(Number(request.timestamp) * 1000).toLocaleDateString('en-GB')} {new Date(Number(request.timestamp) * 1000).toLocaleTimeString('en-GB')}
           </p>
         </div>
       ))}
