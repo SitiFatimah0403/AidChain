@@ -2,12 +2,13 @@ const express = require('express');
 const router = express.Router();
 const { getGeminiResponse , getAidChainBotResponse } = require('../services/aidChatBot'); // This is your Gemini call function
 
+// Chatbot route to handle user messages
 router.post('/chatbot', async (req, res) => {
   try {
-    const userMessage = req.body.message;
+    const userMessage = req.body.message; // Expecting a JSON body with a "message" field
 
     if (!userMessage || typeof userMessage !== 'string') {
-      return res.status(400).json({ error: 'Invalid or empty message provided.' });
+      return res.status(400).json({ error: 'Invalid or empty message provided.' }); // Validate input
     }
 
     let reply = await getGeminiResponse(userMessage);
