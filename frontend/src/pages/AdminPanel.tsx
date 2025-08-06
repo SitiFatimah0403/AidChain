@@ -161,7 +161,7 @@ const AidRequests = ({ loading, requests, handleApprove, isSubmitting }) => (
             <p className="text-sm text-gray-600 mb-1">Name: {r.name}</p>
             <p className="text-sm text-gray-600 mb-1">Contact: {r.contact}</p>
             <p className="text-sm text-gray-600 mb-1">Location: {r.location}</p>
-            <p className="text-xs text-gray-500">Applied: {new Date(r.timestamp * 1000).toLocaleDateString()}</p>
+            <p className="text-xs text-gray-500 mb-1">Applied: {new Date(Number(r.timestamp) * 1000).toLocaleDateString('en-GB')} {new Date(Number(r.timestamp) * 1000).toLocaleTimeString('en-GB')}</p>
           </div>
         ))}
       </div>
@@ -193,7 +193,11 @@ const NFTManagement = ({ donations, claimedRequests, handleMintDonor, handleMint
           <div className="space-y-2 max-h-48 overflow-y-auto">
             {uniqueDonors.map((donor, i) => (
               <div key={i} className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                <span className="text-sm font-medium text-gray-900">{donor.slice(0, 6)}...{donor.slice(-4)}</span>
+                <div className="flex flex-col">
+                    <span className="text-sm font-medium text-gray-900">
+                      {donor.slice(0, 6)}...{donor.slice(-4)}
+                    </span>
+                  </div>
                 <button
                   onClick={() => handleMintDonor(donor)}
                   className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm font-medium transition-colors"
@@ -210,7 +214,11 @@ const NFTManagement = ({ donations, claimedRequests, handleMintDonor, handleMint
           <div className="space-y-2 max-h-48 overflow-y-auto">
             {claimedRequests.map((r, i) => (
               <div key={i} className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-                <span className="text-sm font-medium text-gray-900">{r.recipient.slice(0, 6)}...{r.recipient.slice(-4)}</span>
+                <div className="flex flex-col">
+                    <span className="text-sm font-medium text-gray-900">
+                      {r.slice(0, 6)}...{r.slice(-4)}
+                    </span>
+                  </div>
                 <button
                   onClick={() => handleMintRecipient(r.recipient)}
                   className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm font-medium transition-colors"
@@ -238,7 +246,9 @@ const RecentActivity = ({ donations, claimed }) => (
               <span className="text-sm font-medium text-gray-900">{d.donor.slice(0, 6)}...{d.donor.slice(-4)}</span>
               <span className="text-sm font-semibold text-blue-600">{d.amount} ETH</span>
             </div>
-            <p className="text-xs text-gray-600 mt-1">{new Date(Number(d.timestamp) * 1000).toLocaleString()}</p>
+            <p className="text-xs text-gray-600 mt-1">
+            {new Date(Number(d.timestamp) * 1000).toLocaleDateString('en-GB')} {new Date(Number(d.timestamp) * 1000).toLocaleTimeString('en-GB')}
+          </p>
           </div>
         ))}
       </div>
