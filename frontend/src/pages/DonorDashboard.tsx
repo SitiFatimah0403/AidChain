@@ -234,9 +234,9 @@ export const DonorDashboard: React.FC = () => {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
               <p className="text-gray-600 mt-2">Loading donations...</p>
             </div>
-          ) : contractState.donations.some(d => d.donor.toLowerCase() === address?.toLowerCase()) ? (
+          ) : contractState.donations.length > 0 ? (
             <div className="space-y-4 max-h-96 overflow-y-auto">
-              {contractState.donations.filter(d => d.donor.toLowerCase() === address?.toLowerCase()).slice(-10).reverse().map((donation, index) => (
+              {contractState.donations.slice(-10).reverse().map((donation, index) => (
                 <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                   <div>
                     <p className="font-medium text-gray-900">
