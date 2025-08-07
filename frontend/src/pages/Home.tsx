@@ -1,10 +1,8 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Heart, Shield, Award, Users, TrendingUp, Globe } from 'lucide-react';
 import { useAccount } from 'wagmi';
 import { ConnectWalletButton } from '@/components/connectWalletButton';
-import { useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
 import { isAdmin } from '@/admin/isAdmin';
 import { GeminiChat } from '@/components/ChatBot';
 
@@ -12,15 +10,20 @@ export const Home: React.FC = () => {
   const { address, isConnected } = useAccount();
   const navigate = useNavigate();
 
-      //if admin, then dia tak boleh masuk Home dashboard
-      useEffect(() => {
-      if (isAdmin(address)) {
-        navigate('/admin');
-      }
-    }, [address]);
+ 
+
+
+  // Redirect admin to admin dashboard
+  useEffect(() => {
+    if (isAdmin(address)) {
+      navigate('/admin');
+    }
+  }, [address]);
 
   return (
     <div className="space-y-16">
+
+   
       {/* Hero Section */}
       <div className="text-center space-y-8">
         <div className="space-y-4">
@@ -35,127 +38,100 @@ export const Home: React.FC = () => {
         </div>
 
         {/* Hero Image */}
-          <div className="relative max-w-5xl mx-auto">
-            <div className="relative rounded-3xl overflow-hidden shadow-2xl backdrop-blur-md bg-white/10 border border-white/20">
-              <img
-                src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
-                alt="Hands reaching out for help and support"
-                className="w-full h-96 object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-            </div>
-            
-            {/* Floating cards */}
-            <div className="absolute -top-8 -left-8 bg-white border border-gray-200 rounded-2xl p-6 shadow-xl">
-              <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center">
-                  <Shield className="h-6 w-6 text-white" />
-                </div>
-                <div>
-                  <p className="font-semibold text-gray-900">100% Secure</p>
-                  <p className="text-sm text-gray-600">Blockchain Protected</p>
-                </div>
+        <div className="relative max-w-5xl mx-auto">
+          <div className="relative rounded-3xl overflow-hidden shadow-2xl backdrop-blur-md bg-white/10 border border-white/20">
+            <img
+              src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
+              alt="Hands reaching out for help and support"
+              className="w-full h-96 object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+          </div>
+
+          {/* Floating cards */}
+          <div className="absolute -top-8 -left-8 bg-white border border-gray-200 rounded-2xl p-6 shadow-xl">
+            <div className="flex items-center space-x-3">
+              <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center">
+                <Shield className="h-6 w-6 text-white" />
               </div>
-            </div>
-            
-            <div className="absolute -bottom-8 -right-8 bg-white border border-gray-200 rounded-2xl p-6 shadow-xl">
-              <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center">
-                  <TrendingUp className="h-6 w-6 text-white" />
-                </div>
-                <div>
-                  <p className="font-semibold text-gray-900">89.3 ETH</p>
-                  <p className="text-sm text-gray-600">Total Raised</p>
-                </div>
+              <div>
+                <p className="font-semibold text-gray-900">100% Secure</p>
+                <p className="text-sm text-gray-600">Blockchain Protected</p>
               </div>
             </div>
           </div>
 
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-          {isConnected ? (
-            <div className="flex gap-4">
-              <Link
-                to="/donor"
-                className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors flex items-center space-x-2"
-              >
-                <Heart className="h-5 w-5" />
-                <span>Start Donating</span>
-              </Link>
-              <Link
-                to="/recipient"
-                className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors flex items-center space-x-2"
-              >
-                <Users className="h-5 w-5" />
-                <span>Apply for Aid</span>
-              </Link>
-              <ConnectWalletButton />
+          <div className="absolute -bottom-8 -right-8 bg-white border border-gray-200 rounded-2xl p-6 shadow-xl">
+            <div className="flex items-center space-x-3">
+              <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center">
+                <TrendingUp className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <p className="font-semibold text-gray-900">89.3 ETH</p>
+                <p className="text-sm text-gray-600">Total Raised</p>
+              </div>
             </div>
-          ) : (
-            <ConnectWalletButton />
-          )}
+          </div>
         </div>
+
+        {/* Action Buttons */}
+        {isConnected && (
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Link
+              to="/donor"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors flex items-center space-x-2"
+            >
+              <Heart className="h-5 w-5" />
+              <span>Start Donating</span>
+            </Link>
+            <Link
+              to="/recipient"
+              className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors flex items-center space-x-2"
+            >
+              <Users className="h-5 w-5" />
+              <span>Apply for Aid</span>
+            </Link>
+          </div>
+        )}
       </div>
 
-       {/* Fundraising Progress Containers */}
-       <div className="grid md:grid-cols-3 gap-8">
-  {/* Card 1 */}
-  <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-    <img
-  src="https://images.unsplash.com/photo-1593113598332-cd288d649433?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
-  alt="Volunteer packing food boxes"
-  className="w-full h-40 object-cover"
-/>
+      {/* Fundraising Cards */}
+      <div className="grid md:grid-cols-3 gap-8">
+        {/* Card 1 */}
+        <FundCard
+          title="Emergency Food Relief"
+          location="Southeast Asia"
+          raised={24.7}
+          goal={30}
+          donors={156}
+          img="https://images.unsplash.com/photo-1593113598332-cd288d649433?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
+          color="green"
+        />
 
-    <div className="p-4 space-y-2">
-      <h3 className="text-xl font-semibold text-gray-900">Emergency Food Relief</h3>
-      <p className="text-sm text-gray-500">Southeast Asia</p>
-      <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
-        <div className="bg-green-500 h-2.5 rounded-full" style={{ width: `82%` }}></div>
+        {/* Card 2 */}
+        <FundCard
+          title="Clean Water Initiative"
+          location="Sub-Saharan Africa"
+          raised={18.2}
+          goal={25}
+          donors={203}
+          img="https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
+          color="blue"
+        />
+
+        {/* Card 3 */}
+        <FundCard
+          title="Education Support"
+          location="Rural Communities"
+          raised={31.5}
+          goal={40}
+          donors={287}
+          img="https://images.unsplash.com/photo-1497486751825-1233686d5d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
+          color="purple"
+        />
       </div>
-      <p className="text-sm text-gray-600">24.7 ETH raised of 30.0 ETH</p>
-      <p className="text-sm text-gray-600">156 donors</p>
-    </div>
-  </div>
 
-  {/* Card 2 */}
-  <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-    <img
-      src="https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
-      alt="Clean Water Initiative"
-      className="w-full h-40 object-cover"
-    />
-    <div className="p-4 space-y-2">
-      <h3 className="text-xl font-semibold text-gray-900">Clean Water Initiative</h3>
-      <p className="text-sm text-gray-500">Sub-Saharan Africa</p>
-      <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
-        <div className="bg-blue-500 h-2.5 rounded-full" style={{ width: `73%` }}></div>
-      </div>
-      <p className="text-sm text-gray-600">18.2 ETH raised of 25.0 ETH</p>
-      <p className="text-sm text-gray-600">203 donors</p>
-    </div>
-  </div>
-
-  {/* Card 3 */}
-  <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-    <img
-      src="https://images.unsplash.com/photo-1497486751825-1233686d5d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
-      alt="Education Support"
-      className="w-full h-40 object-cover"
-    />
-    <div className="p-4 space-y-2">
-      <h3 className="text-xl font-semibold text-gray-900">Education Support</h3>
-      <p className="text-sm text-gray-500">Rural Communities</p>
-      <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
-        <div className="bg-purple-500 h-2.5 rounded-full" style={{ width: `79%` }}></div>
-      </div>
-      <p className="text-sm text-gray-600">31.5 ETH raised of 40.0 ETH</p>
-      <p className="text-sm text-gray-600">287 donors</p>
-    </div>
-  </div>
-</div>
-
-
-      {/* Features Grid */}
+      {/* Features */}
       <div className="grid md:grid-cols-3 gap-8">
         <Feature
           icon={<Shield className="h-6 w-6 text-indigo-600" />}
@@ -180,10 +156,10 @@ export const Home: React.FC = () => {
       {/* How It Works */}
       <HowItWorks />
 
-      {/* Stats Section */}
+      {/* Stats */}
       <Stats />
 
-      {/* CTA Section */}
+      {/* Call To Action */}
       <div className="text-center bg-gray-50 rounded-2xl p-8">
         <Globe className="h-16 w-16 text-indigo-600 mx-auto mb-4" />
         <h2 className="text-3xl font-bold text-gray-900 mb-4">Ready to Make a Difference?</h2>
@@ -194,23 +170,30 @@ export const Home: React.FC = () => {
         {!isConnected && <ConnectWalletButton />}
       </div>
 
-      {/* ✅ Gemini Chat floating assistant */}
+      {/* Gemini Chat Assistant */}
       <GeminiChat />
     </div>
   );
 };
 
-const Feature = ({
-  icon,
-  title,
-  text,
-  bg,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  text: string;
-  bg: string;
-}) => (
+// Fundraising Card Component
+const FundCard = ({ title, location, raised, goal, donors, img, color }: any) => (
+  <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+    <img src={img} alt={title} className="w-full h-40 object-cover" />
+    <div className="p-4 space-y-2">
+      <h3 className="text-xl font-semibold text-gray-900">{title}</h3>
+      <p className="text-sm text-gray-500">{location}</p>
+      <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+        <div className={`bg-${color}-500 h-2.5 rounded-full`} style={{ width: `${(raised / goal) * 100}%` }}></div>
+      </div>
+      <p className="text-sm text-gray-600">{raised} ETH raised of {goal} ETH</p>
+      <p className="text-sm text-gray-600">{donors} donors</p>
+    </div>
+  </div>
+);
+
+// Reusable Feature Block
+const Feature = ({ icon, title, text, bg }: any) => (
   <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
     <div className={`w-12 h-12 ${bg} rounded-lg flex items-center justify-center mb-4`}>{icon}</div>
     <h3 className="text-xl font-semibold text-gray-900 mb-2">{title}</h3>
@@ -218,6 +201,7 @@ const Feature = ({
   </div>
 );
 
+// How It Works Section
 const HowItWorks = () => (
   <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-200">
     <h2 className="text-3xl font-bold text-center text-gray-900 mb-8">How AidChain Works</h2>
@@ -252,6 +236,7 @@ const HowItWorks = () => (
           </li>
         ))}
       </ol>
+
       <div className="relative">
         <img
           src="https://images.unsplash.com/photo-1559027615-cd4628902d4a?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
@@ -259,15 +244,13 @@ const HowItWorks = () => (
           className="rounded-lg shadow-lg"
         />
         <div className="absolute inset-0 bg-indigo-600 bg-opacity-10 rounded-lg" />
-      
-  
-{/* Floating elements */}
+
+        {/* Floating Icons */}
         <div className="absolute -top-6 -right-6 bg-white border border-gray-200 rounded-2xl p-4 shadow-xl">
           <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
             <Heart className="h-4 w-4 text-white" />
           </div>
         </div>
-        
         <div className="absolute -bottom-6 -left-6 bg-white border border-gray-200 rounded-2xl p-4 shadow-xl">
           <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
             <Award className="h-4 w-4 text-white" />
@@ -276,16 +259,14 @@ const HowItWorks = () => (
       </div>
     </div>
   </div>
-  
 );
 
+// Stats Section
 const Stats = () => (
   <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-8 text-white">
     <div className="text-center mb-8">
       <h2 className="text-3xl font-bold mb-2">Making a Real Impact</h2>
-      <p className="text-indigo-100">
-        Join thousands of users creating positive change through blockchain technology
-      </p>
+      <p className="text-indigo-100">Join thousands of users creating positive change through blockchain technology</p>
     </div>
     <div className="grid md:grid-cols-4 gap-6 text-center">
       {[

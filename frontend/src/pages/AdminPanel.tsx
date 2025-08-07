@@ -226,6 +226,10 @@ const AidRequests = ({ loading, requests, handleApprove, isSubmitting }) => (
   </div>
 );
 
+//URL for donor and recipient badge NFTs
+const donorBadgeURI = "ipfs://bafkreifm6xiu4faoas3evogreo6uuklzlsmxhoarcrxeazpm57vhqplqnu";
+const recipientBadgeURI = "ipfs://bafkreiaa2a2kqqv2kznfwfwozhiocikrcq5mg3nqy2kdkjylg76wsnnesm"; 
+
 // NFT Mint Section
 const NFTManagement = ({ donations, claimedRequests, handleMintDonor, handleMintRecipient }) => {
   const uniqueDonors = (donations as any[]).reduce((acc: string[], d) => {

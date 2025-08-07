@@ -424,8 +424,7 @@ useEffect(() => {
           <div>
             <h3 className="font-semibold mb-2">Fair Distribution</h3>
             <p className="text-blue-100 text-sm">
-              Each approved recipient can claim exactly 0.01 ETH to ensure fair distribution of
-              donated funds among all those who need assistance.
+              Each approved aid request remains active for 14 days, ensuring equal opportunity for all applicants to receive support within the same time frame.
             </p>
           </div>
         </div>

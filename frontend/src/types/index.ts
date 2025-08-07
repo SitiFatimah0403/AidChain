@@ -26,6 +26,7 @@ export interface WalletState {
 }
 
 export interface ContractState {
+  userHasDonorNFT: any;
   totalDonated: string;
   donations: Donation[];
   aidRequests: AidRequest[];

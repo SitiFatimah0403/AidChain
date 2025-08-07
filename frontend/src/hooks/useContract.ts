@@ -1,4 +1,4 @@
-import { useAccount, useReadContract } from 'wagmi';
+import { useAccount, usePublicClient, useReadContract, useWalletClient } from 'wagmi';
 import { writeContract, readContract } from '@wagmi/core';
 import { parseEther } from 'viem';
 import type { Abi } from 'viem';
@@ -6,6 +6,8 @@ import AidChainAbiJson from '@/contracts/AidChain.json';
 import type { ContractState, Donation, AidRequest } from '@/types';
 import { config } from '@/wagmisetup';
 import { useMemo, useEffect, useState } from 'react';
+import { Address } from 'viem';
+
 
 const CONTRACT_ADDRESS = import.meta.env.VITE_AID_CONTRACT as `0x${string}`;
 console.log("Loaded contract address:", CONTRACT_ADDRESS);
@@ -15,6 +17,8 @@ const AidChainAbi = AidChainAbiJson.abi as Abi; // Cast the imported JSON ABI to
 // This custom hook provides functions to interact with the AidChain smart contract.
 export const useContract = () => {
   const { address: userAddress } = useAccount();
+  const { data: walletClient } = useWalletClient();
+  const publicClient = usePublicClient();
 
   // Read hooks
   const totalDonated = useReadContract({
@@ -59,6 +63,15 @@ export const useContract = () => {
     query: { enabled: !!userAddress },
   });
 
+  const hasDonorNFT = useReadContract({
+  address: CONTRACT_ADDRESS,
+  abi: AidChainAbi,
+  functionName: 'hasDonorBadge', // to check if the user has a donor badge
+  args: userAddress ? [userAddress] : undefined,
+  query: { enabled: !!userAddress },
+});
+
+
   const hasDonated = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: AidChainAbi,
@@ -72,6 +85,8 @@ export const useContract = () => {
   abi: AidChainAbi,
   functionName: 'AID_AMOUNT',
 });
+
+   
 
 
   // Load full AidRequest details
@@ -135,6 +150,7 @@ export const useContract = () => {
     userHasDonated: Boolean(hasDonated.data),
     userIsApproved: Boolean(isApproved.data),
     userHasClaimed: Boolean(hasClaimed.data),
+    userHasDonorNFT: Boolean(hasDonorNFT.data),
 
   }), [
     totalDonated.data,
@@ -145,7 +161,7 @@ export const useContract = () => {
     isApproved.data,
     hasClaimed.data,
     hasDonated.data,
-
+    hasDonorNFT.data,
   ]);
 
 
@@ -155,7 +171,7 @@ export const useContract = () => {
     abi: AidChainAbi,
     address: CONTRACT_ADDRESS,
     functionName: 'donate',
-    args: [], // ✅ No arguments passed
+    args: [], //  No arguments passed
     account: userAddress,
     value: parseEther(amount),
     chain: config.chains[0],
@@ -258,3 +274,5 @@ export const useContract = () => {
     resetCycle,
   };
 };
+
+
