@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useContract } from '@/hooks/useContract';
 
+
 const ApprovedRecipients: React.FC = () => {
     const { contractState } = useContract();
     const navigate = useNavigate();
@@ -46,8 +47,10 @@ const ApprovedRecipients: React.FC = () => {
                                 Select
                             </button>
                         </div>
+
                     </div>
                 ))}
+                
             </div>
         </div>
 

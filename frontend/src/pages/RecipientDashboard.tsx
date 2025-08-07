@@ -271,10 +271,6 @@ useEffect(() => {
                   />
                 </div>
 
-                {/* ✅ Floating chatbot */}
-                <GeminiChat />
-                      
-
                 <div className="bg-blue-50 p-4 rounded-lg">
                   <h3 className="font-semibold text-blue-900 mb-2">Aid Information</h3>
                   <ul className="text-sm text-blue-800 space-y-1">
@@ -429,6 +425,9 @@ useEffect(() => {
           </div>
         </div>
       </div>
+        {/* ✅ Floating chatbot */}
+                <GeminiChat />
+                      
     </div>
   );
 };
