@@ -102,7 +102,7 @@ export const RecipientDashboard: React.FC = () => {
     if (!address) return;
     try {
       // link badge nanti
-      const metadataURI = 'ipfs://bafkreialgqe52m2frhwkzqjmedu2pnk3b65yvvuyn6rn4texztlaxbgule';
+    const metadataURI = 'https://ipfs.io/ipfs://bafkreiaa2a2kqqv2kznfwfwozhiocikrcq5mg3nqy2kdkjylg76wsnnesm';
 
       await mintBadge(address, metadataURI); 
       alert('Recipient NFT minted successfully!');

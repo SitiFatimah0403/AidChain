@@ -19,7 +19,7 @@ export const AdminPanel: React.FC = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const isAdmin = isConnected;
+  const isAdminUser = isAdmin(userAddress); // ✅ Use your real function
 
   const handleApproveRecipient = async (recipient: string) => {
     try {
@@ -68,6 +68,17 @@ export const AdminPanel: React.FC = () => {
       </div>
     );
   }
+
+  if (!isAdminUser) {
+  return (
+    <div className="text-center py-12">
+      <Shield className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+      <h2 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h2>
+      <p className="text-gray-600">Your wallet is not an authorized admin.</p>
+    </div>
+  );
+}
+
 
   const pendingRequests = contractState.aidRequests.filter(r => !r.approved);
   const approvedRequests = contractState.aidRequests.filter(r => r.approved && !r.claimed);

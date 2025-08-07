@@ -1,6 +1,19 @@
 {
-	"abi": 
+	"abi" :
 	[
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "newAdmin",
+				"type": "address"
+			}
+		],
+		"name": "addAdmin",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
 	{
 		"inputs": [
 			{
@@ -198,13 +211,7 @@
 		"type": "function"
 	},
 	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "recipient",
-				"type": "address"
-			}
-		],
+		"inputs": [],
 		"name": "donate",
 		"outputs": [],
 		"stateMutability": "payable",
@@ -368,6 +375,19 @@
 		],
 		"name": "RejectedByNFA",
 		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "adminToRemove",
+				"type": "address"
+			}
+		],
+		"name": "removeAdmin",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
 	},
 	{
 		"inputs": [],
@@ -541,6 +561,25 @@
 				"internalType": "address",
 				"name": "",
 				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "admins",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
 			}
 		],
 		"stateMutability": "view",
@@ -738,11 +777,6 @@
 				"type": "address"
 			},
 			{
-				"internalType": "address",
-				"name": "recipient",
-				"type": "address"
-			},
-			{
 				"internalType": "uint256",
 				"name": "amount",
 				"type": "uint256"
@@ -816,11 +850,6 @@
 					{
 						"internalType": "address",
 						"name": "donor",
-						"type": "address"
-					},
-					{
-						"internalType": "address",
-						"name": "recipient",
 						"type": "address"
 					},
 					{

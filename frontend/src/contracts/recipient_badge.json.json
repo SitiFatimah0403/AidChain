@@ -1,7 +1,7 @@
 {
   "name": "AidChain Recipient Badge",
   "description": "Awarded to verified aid recipients in the AidChain program.",
-  "image": "ipfs://bafkreiaa2a2kqqv2kznfwfwozhiocikrcq5mg3nqy2kdkjylg76wsnnesm",
+  "image": "https://bafkreiaa2a2kqqv2kznfwfwozhiocikrcq5mg3nqy2kdkjylg76wsnnesm.ipfs.nftstorage.link ",
   "attributes": [
     {
       "trait_type": "Role",
