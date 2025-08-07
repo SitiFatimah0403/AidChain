@@ -207,7 +207,7 @@ export const DonorDashboard: React.FC = () => {
             </button>
           </form>
 
-          {contractState.userHasDonated && !contractState.userHasDonorNFT &&  (
+          {contractState.userHasDonated && !contractState.userHasDonorNFT && (
             <div className="mt-6 p-4 bg-green-50 rounded-lg">
               <div className="flex items-center justify-between">
                 <div>
@@ -265,33 +265,33 @@ export const DonorDashboard: React.FC = () => {
       </div>
 
       <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl p-8 text-white">
-        <h2 className="text-2xl font-bold mb-4">Your Impact</h2>
+        <h2 className="text-2xl font-bold mb-4">Community Impact</h2>
         <div className="grid md:grid-cols-3 gap-6">
           <div className="text-center">
             <div className="text-3xl font-bold mb-2">
-              {contractState.donations.filter(d => d.donor.toLowerCase() === address?.toLowerCase()).length}
+              {contractState.donations.length}
             </div>
-            <div className="text-indigo-200">Your Donations</div>
+            <div className="text-indigo-200">Total Donations</div>
           </div>
           <div className="text-center">
             <div className="text-3xl font-bold mb-2">
               {contractState.donations
-                .filter(d => d.donor.toLowerCase() === address?.toLowerCase())
-                .reduce((sum, d) => sum + parseFloat(d.amount), 0)
-                .toFixed(4)}
+                .reduce((sum, d) => sum + parseFloat(formatEther(BigInt(d.amount))), 0)
+                .toFixed(3)} ETH
             </div>
-            <div className="text-indigo-200">ETH Contributed</div>
+            <div className="text-indigo-200">Funds Raised</div>
           </div>
           <div className="text-center">
             <div className="text-3xl font-bold mb-2">
-              {Math.floor(
-                contractState.donations
-                  .filter(d => d.donor.toLowerCase() === address?.toLowerCase())
-                  .reduce((sum, d) => sum + parseFloat(d.amount), 0) / 0.01
-              )}
+              {
+                new Set(
+                  contractState.donations.map(d => d.donor?.toLowerCase())
+                ).size
+              }
             </div>
-            <div className="text-indigo-200">People You Can Help</div>
+            <div className="text-indigo-200">People Helped</div>
           </div>
+
         </div>
       </div>
     </div>
