@@ -207,7 +207,7 @@ export const DonorDashboard: React.FC = () => {
             </button>
           </form>
 
-          {contractState.userHasDonated && (
+          {contractState.userHasDonated && !contractState.userHasDonorNFT &&  (
             <div className="mt-6 p-4 bg-green-50 rounded-lg">
               <div className="flex items-center justify-between">
                 <div>
