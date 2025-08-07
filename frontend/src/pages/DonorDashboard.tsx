@@ -6,21 +6,25 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { isAdmin } from '@/admin/isAdmin';
 import { GeminiChat } from "@/components/ChatBot";
-import { formatEther } from 'viem';
+import { formatEther , isAddress } from 'viem';
 import { useSearchParams } from 'react-router-dom';
+import { useConfidentialDonationContract } from '@/hooks/useConfidentialDonationContract';
+
 
 
 export const DonorDashboard: React.FC = () => {
   const { address, isConnected } = useAccount();
   const { data: walletClient } = useWalletClient();
   const signer = walletClient;
-
   const { contractState, loading, donate, mintDonorNFT } = useContract();
   const [donationAmount, setDonationAmount] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
-  const [selectedRecipient, setSelectedRecipient] = useState('');
+  //const [selectedRecipient, setSelectedRecipient] = useState('');
+  const [selectedRecipient, setSelectedRecipient] = useState<string | null>(null); //selectedRecipient can be null or a string, instead of always being a string.
   const [searchParams] = useSearchParams();
+  const { confidentialDonate } = useConfidentialDonationContract(); // Hook to handle confidential donations
+  const [isDonating, setIsDonating] = useState(false); //for confidential donation state
 
   useEffect(() => {
     const prefilledRecipient = searchParams.get("recipient");
@@ -59,8 +63,34 @@ export const DonorDashboard: React.FC = () => {
     } finally {
       setIsSubmitting(false);
     }
+
+    
+
   };
 
+  //handle confidential donation-SEPPHIRE
+const handleConfidentialDonate = async () => {
+  if (!selectedRecipient || !donationAmount) {
+    alert("Recipient and amount are required.");
+    return;
+  }
+
+  if (!isAddress(selectedRecipient)) {
+    alert("❌ Invalid Ethereum address.");
+    return;
+  }
+
+  try {
+    setIsDonating(true);
+    await confidentialDonate(selectedRecipient as `0x${string}`, donationAmount);
+    alert("✅ Confidential donation successful!");
+  } catch (error) {
+    console.error("❌ Confidential donation failed:", error);
+    alert("❌ Donation failed. Try again.");
+  } finally {
+    setIsDonating(false);
+  }
+};
 
   const handleMintNFT = async () => {
     if (!address) return;
@@ -205,6 +235,17 @@ export const DonorDashboard: React.FC = () => {
             >
               {isSubmitting ? 'Processing...' : 'Donate Now'}
             </button>
+
+            {/* Confidential donation button */}
+            <button
+              type="button"
+              disabled={isDonating || !donationAmount}
+              onClick={handleConfidentialDonate}
+              className="w-full bg-gray-800 hover:bg-gray-900 disabled:bg-gray-400 text-white py-3 px-4 rounded-md font-semibold transition-colors mt-2"
+            >
+              {isDonating ? 'Processing...' : 'Confidential Donate (Sapphire)'} </button>
+
+
           </form>
 
           {contractState.userHasDonated && !contractState.userHasDonorNFT && (
