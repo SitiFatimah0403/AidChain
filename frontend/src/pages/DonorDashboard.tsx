@@ -42,16 +42,25 @@ export const DonorDashboard: React.FC = () => {
 
     try {
       setIsSubmitting(true);
+      console.log("📤 Donating to:", selectedRecipient);
+      console.log("💰 Amount:", donationAmount);
       await donate(selectedRecipient, donationAmount);
       setDonationAmount('');
       alert('Donation successful! Thank you for your contribution.');
-    } catch (error) {
-      console.error('Donation failed:', error);
+    } catch (error: any) {
+      console.error('❌ Donation failed:', error);
+      if (error?.message) {
+        console.log("📛 Error Message:", error.message);
+      }
+      if (error?.cause) {
+        console.log("📛 Cause:", error.cause);
+      }
       alert('Donation failed. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
+
 
   const handleMintNFT = async () => {
     if (!address) return;
@@ -231,7 +240,9 @@ export const DonorDashboard: React.FC = () => {
                 <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                   <div>
                     <p className="font-medium text-gray-900">
-                      {donation.recipient.slice(0, 6)}...{donation.recipient.slice(-4)}
+                      {donation.donor && donation.donor.length >= 10
+                        ? `${donation.donor.slice(0, 6)}...${donation.donor.slice(-4)}`
+                        : 'Anonymous'}
                     </p>
                     <p className="text-sm text-gray-600">
                       {new Date(Number(donation.timestamp) * 1000).toLocaleDateString('en-GB')} {new Date(Number(donation.timestamp) * 1000).toLocaleTimeString('en-GB')}

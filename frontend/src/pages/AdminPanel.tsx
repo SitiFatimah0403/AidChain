@@ -12,6 +12,7 @@ export const AdminPanel: React.FC = () => {
     approveRecipient,
     mintDonorNFT,
     mintRecipientNFT,
+    resetCycle,
     loading
   } = useContract();
 
@@ -37,6 +38,24 @@ export const AdminPanel: React.FC = () => {
       setIsSubmitting(false);
     }
   };
+
+  const handleResetCycle = async () => {
+    try {
+      setIsSubmitting(true); // show loading state on the button
+
+      await resetCycle(); // call smart contract function
+
+      await queryClient.invalidateQueries(); // force-refresh the data
+
+      alert('Cycle has been successfully reset. Users can now reapply.');
+    } catch (error) {
+      console.error('Reset failed:', error);
+      alert('Reset cycle failed. Make sure cooldown passed or someone has claimed.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
 
 
   const handleMintDonorNFT = async (donor: string) => {
@@ -121,6 +140,20 @@ export const AdminPanel: React.FC = () => {
         aidApplications={contractState.aidRequests.length}
         peopleHelped={claimedRequests.length}
       />
+
+      <div className="flex flex-col items-center mt-8">
+        <button
+          onClick={handleResetCycle}
+          disabled={isSubmitting}
+          className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded font-medium transition"
+        >
+          {isSubmitting ? 'Resetting Cycle...' : 'Reset Aid Cycle'}
+        </button>
+
+        <p className="text-sm text-gray-500 text-center mt-2">
+          Click this only after the current recipient has claimed their aid.
+        </p>
+      </div>
     </div>
   );
 };
@@ -308,4 +341,6 @@ const PlatformStats = ({ totalDonated, totalDonations, aidApplications, peopleHe
       <div><div className="text-3xl font-bold mb-2">{peopleHelped}</div><div className="text-indigo-200">People Helped</div></div>
     </div>
   </div>
+
+  
 );

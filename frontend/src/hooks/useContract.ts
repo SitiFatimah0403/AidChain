@@ -77,42 +77,42 @@ export const useContract = () => {
   // Load full AidRequest details
   const [fullAidRequests, setFullAidRequests] = useState<AidRequest[]>([]);
   console.log("📦 aidRequestsList.data:", aidRequestsList.data);
-console.log("📦 RAW aidRequestsList.data:", aidRequestsList.data);
+  console.log("📦 RAW aidRequestsList.data:", aidRequestsList.data);
 
 
-  useEffect(() => {
-    const fetchDetails = async () => {
-      if (!Array.isArray(aidRequestsList.data)) return;
-      const addresses = aidRequestsList.data as string[];
+    useEffect(() => {
+      const fetchDetails = async () => {
+        if (!Array.isArray(aidRequestsList.data)) return;
+        const addresses = aidRequestsList.data as string[];
 
-      const detailedRequests = await Promise.all(
-        addresses.map(async (addr) => {
-          const req = await readContract(config, {
-            address: CONTRACT_ADDRESS,
-            abi: AidChainAbi,
-            functionName: 'aidRequests',
-            args: [addr],
-          });
+        const detailedRequests = await Promise.all(
+          addresses.map(async (addr) => {
+            const req = await readContract(config, {
+              address: CONTRACT_ADDRESS,
+              abi: AidChainAbi,
+              functionName: 'aidRequests',
+              args: [addr],
+            });
 
-          return {
-            recipient: addr,
-            reason: req[1],
-            timestamp: Number(req[2]),
-            approved: req[3],
-            claimed: req[4],
-            location: req[5],
-            name: req[6],
-            contact: req[7],
-          };
-        })
-      );
+            return {
+              recipient: addr,
+              reason: req[1],
+              timestamp: Number(req[2]),
+              approved: req[3],
+              claimed: req[4],
+              location: req[5],
+              name: req[6],
+              contact: req[7],
+            };
+          })
+        );
 
-      setFullAidRequests(detailedRequests);
-    };
+        setFullAidRequests(detailedRequests);
+      };
 
 
-    fetchDetails();
-  }, [aidRequestsList.data]);
+      fetchDetails();
+    }, [aidRequestsList.data]);
 
   const loading =
     totalDonated.isLoading ||
@@ -150,16 +150,17 @@ console.log("📦 RAW aidRequestsList.data:", aidRequestsList.data);
 
 
   // Write actions
-  const donate = async (recipient: string, amount: string) =>
-    await writeContract(config, {
-      abi: AidChainAbi,
-      address: CONTRACT_ADDRESS,
-      functionName: 'donate', //send donation to the contract
-      args: [recipient],
-      account: userAddress,
-      value: parseEther(amount),
-      chain: config.chains[0],
-    });
+ const donate = async (_: string, amount: string) =>
+  await writeContract(config, {
+    abi: AidChainAbi,
+    address: CONTRACT_ADDRESS,
+    functionName: 'donate',
+    args: [], // ✅ No arguments passed
+    account: userAddress,
+    value: parseEther(amount),
+    chain: config.chains[0],
+  });
+
 
     // to apply for aid - recipient only
   const applyForAid = async (
@@ -233,6 +234,17 @@ console.log("📦 RAW aidRequestsList.data:", aidRequestsList.data);
       chain: config.chains[0],
     });
 
+    //to reset after the user has applied
+    const resetCycle = async () =>
+      await writeContract(config, {
+        address: CONTRACT_ADDRESS,
+        abi: AidChainAbi,
+        functionName: 'resetCycle',
+        account: userAddress!,
+        chain: config.chains[0],
+      });
+
+
   return {
     contractState,
     loading,
@@ -243,5 +255,6 @@ console.log("📦 RAW aidRequestsList.data:", aidRequestsList.data);
     claimAid,
     mintDonorNFT,
     mintRecipientNFT,
+    resetCycle,
   };
 };
