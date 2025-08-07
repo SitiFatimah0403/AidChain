@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.9.0/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.9.0/contracts/access/Ownable.sol";
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.9.0/contracts/utils/Counters.sol";
 import "./AidBadgeNFT.sol"; // Importing AidBadgeNFT for minting badges
-
 
 contract AidChain is ERC721, Ownable {
     using Counters for Counters.Counter;
@@ -179,6 +178,7 @@ contract AidChain is ERC721, Ownable {
         lastClaimedAt[msg.sender] = block.timestamp;
         hasClaimedAidByCycle[currentCycleId][msg.sender] = true;
         aidRequests[msg.sender].claimed = true;
+        hasClaimedAid[msg.sender] = true;
         
         uint256 payout = address(this).balance;
         require(payout > 0, "No funds to claim");
@@ -206,10 +206,10 @@ contract AidChain is ERC721, Ownable {
 
     
         //For minting Donor NFT
-        function mintDonorNFT(address donor) external onlyOwner {
+        function mintDonorNFT(address donor) external {
         require(hasDonated[donor], "Address has not donated");
 
-        string memory donorURI = "https://ipfs.io/ipfs/bafkreifm6xiu4faoas3evogreo6uuklzlsmxhoarcrxeazpm57vhqplqnu";
+        string memory donorURI = "https://ipfs.io/ipfs/bafkreicoxgs3k2x2p6ck6ve4a6cu6mhypva7th662mqb34afbn4zqeywye";
         badgeNFT.mintBadge(donor, donorURI);
 
         emit DonorNFTMinted(donor, block.timestamp);
@@ -217,10 +217,10 @@ contract AidChain is ERC721, Ownable {
 
         
         //For minting Recipient NFT
-    function mintRecipientNFT(address recipient) external onlyOwner {
+    function mintRecipientNFT(address recipient) external {
         require(hasClaimedAid[recipient], "Address has not claimed aid");
 
-        string memory recipientURI = "https://ipfs.io/ipfs/bafkreiaa2a2kqqv2kznfwfwozhiocikrcq5mg3nqy2kdkjylg76wsnnesm";
+        string memory recipientURI = "https://ipfs.io/ipfs/bafkreiev75owvthyhz376aumgdnufqieh23agh2bnvvmybccmqlcibhfey";
         badgeNFT.mintBadge(recipient, recipientURI);
 
         emit RecipientNFTMinted(recipient, block.timestamp);
@@ -252,10 +252,10 @@ contract AidChain is ERC721, Ownable {
         
         if (tokenId <= 10000) {
             // Donor NFT
-            return "https://ipfs.io/ipfs/bafkreifm6xiu4faoas3evogreo6uuklzlsmxhoarcrxeazpm57vhqplqnu";
+            return "https://ipfs.io/ipfs/bafkreicoxgs3k2x2p6ck6ve4a6cu6mhypva7th662mqb34afbn4zqeywye";
         } else {
             // Recipient NFT
-            return "https://ipfs.io/ipfs/bafkreiaa2a2kqqv2kznfwfwozhiocikrcq5mg3nqy2kdkjylg76wsnnesm";
+            return "https://ipfs.io/ipfs/bafkreiev75owvthyhz376aumgdnufqieh23agh2bnvvmybccmqlcibhfey";
         }
     }
 
