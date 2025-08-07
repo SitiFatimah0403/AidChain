@@ -9,9 +9,10 @@ const ApprovedRecipients: React.FC = () => {
     const approvedRecipients = contractState.aidRequests.filter(r => r.approved && !r.claimed);
 
     return (
-        <div className="max-w-3xl mx-auto p-6">
+        <div className="max-w-6xl mx-auto p-6">
             <h1 className="text-3xl font-bold mb-6">Approved Recipients</h1>
-            <div className="space-y-4">
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {approvedRecipients.map((r, i) => (
                     <div
                         key={i}
@@ -48,14 +49,14 @@ const ApprovedRecipients: React.FC = () => {
                                 onClick={() => navigate(`/donor?recipient=${r.recipient}`)}
                                 className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-md text-sm font-semibold transition-colors"
                             >
-                                Select This Recipient
+                                Select
                             </button>
                         </div>
                     </div>
-
                 ))}
             </div>
         </div>
+
     );
 };
 
