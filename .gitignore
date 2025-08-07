@@ -3,3 +3,5 @@ node_modules
 git remote add origin https://github.com/SitiFatimah0403/AidChain.git
 backend/.env
 frontend/.env
+secret.json
+confidential-donations/.env

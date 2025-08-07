@@ -10,7 +10,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@openzeppelin/contracts": "^4.9.5",
+    "@oasisprotocol/sapphire-paratime": "^2.2.0",
+    "@openzeppelin/contracts": "^4.9.0",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
