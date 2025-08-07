@@ -56,8 +56,6 @@ export const AdminPanel: React.FC = () => {
     }
   };
 
-
-
   const handleMintDonorNFT = async (donor: string) => {
     try {
       await mintDonorNFT(donor);
@@ -334,6 +332,7 @@ const RecentActivity = ({ donations, claimed }) => (
     </div>
   </div>
 );
+
 
 const PlatformStats = ({ totalDonated, totalDonations, aidApplications, peopleHelped }) => (
   <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl p-8 text-white">
