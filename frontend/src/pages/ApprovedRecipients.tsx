@@ -31,10 +31,6 @@ const ApprovedRecipients: React.FC = () => {
                                 <span className="break-all text-gray-600">{r.recipient}</span>
                             </p>
                             <p>
-                                <span className="font-medium text-gray-800">Contact:</span><br />
-                                <span className="text-gray-600">{r.contact}</span>
-                            </p>
-                            <p>
                                 <span className="font-medium text-gray-800">Location:</span><br />
                                 <span className="text-gray-600">{r.location}</span>
                             </p>
