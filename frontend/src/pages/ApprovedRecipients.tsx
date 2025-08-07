@@ -28,11 +28,9 @@ const ApprovedRecipients: React.FC = () => {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-sm text-gray-700 mb-4">
                             <p>
                                 <span className="font-medium text-gray-800">Address:</span><br />
-                                <span className="break-all text-gray-600">{r.recipient}</span>
-                            </p>
-                            <p>
-                                <span className="font-medium text-gray-800">Location:</span><br />
-                                <span className="text-gray-600">{r.location}</span>
+                                <span className="break-all text-gray-600">{r.recipient
+                                    ? `${r.recipient.slice(0, 6)}...${r.recipient.slice(-4)}`
+                                    : 'N/A'}</span>
                             </p>
                             <p>
                                 <span className="font-medium text-gray-800">Reason for Aid:</span><br />
