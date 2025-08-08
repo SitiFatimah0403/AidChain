@@ -1,11 +1,9 @@
 import * as React from 'react';
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-
 import { Users, Clock, CheckCircle, Gift, AlertCircle } from 'lucide-react';
 import { useAccount } from 'wagmi';
 import { useContract } from '@/hooks/useContract';
-import { useBadgeContract } from '@/hooks/useBadgeContract';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { isAdmin } from '@/admin/isAdmin';
@@ -25,8 +23,8 @@ export const RecipientDashboard: React.FC = () => {
     applyForAid,
     claimAid,
     loading,
+    mintRecipientNFT
   } = useContract();
-  const { mintBadge } = useBadgeContract();
 
   const [aidReason, setAidReason] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -100,16 +98,13 @@ export const RecipientDashboard: React.FC = () => {
     }
   };
 
-  const handleMintNFT = async () => {
+    const handleMintNFT = async () => {
     if (!address) return;
     try {
-      // link badge nanti
-    const metadataURI = 'https://ipfs.io/ipfs://bafkreiaa2a2kqqv2kznfwfwozhiocikrcq5mg3nqy2kdkjylg76wsnnesm';
-
-      await mintBadge(address, metadataURI); 
+      await mintRecipientNFT(address); // ✅ call AidChain, not AidBadgeNFT
       alert('Recipient NFT minted successfully!');
-    } catch (error) {
-      console.error('NFT minting failed:', error);
+    } catch (err) {
+      console.error('NFT minting failed:', err);
       alert('NFT minting failed. Please try again.');
     }
   };
