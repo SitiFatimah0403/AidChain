@@ -8,7 +8,6 @@ import { config } from '@/wagmisetup';
 import { useMemo, useEffect, useState } from 'react';
 import { Address } from 'viem';
 
-
 const CONTRACT_ADDRESS = import.meta.env.VITE_AID_CONTRACT as `0x${string}`;
 console.log("Loaded contract address:", CONTRACT_ADDRESS);
 
@@ -20,14 +19,15 @@ export const useContract = () => {
   const { data: walletClient } = useWalletClient();
   const publicClient = usePublicClient();
 
-  // Read hooks
+  // ===== READ CONTRACTS =====
   const totalDonated = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: AidChainAbi,
     functionName: 'totalDonated', //call totalDonated function from the contract
   });
 
-  const getDonations = useReadContract({
+  // ✅ FIX: Destructure .data and default to [] so donations is always an array
+  const { data: donationsData = [] } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: AidChainAbi,
     functionName: 'getDonations', //call getDonations function from the contract
@@ -64,13 +64,12 @@ export const useContract = () => {
   });
 
   const hasDonorNFT = useReadContract({
-  address: CONTRACT_ADDRESS,
-  abi: AidChainAbi,
-  functionName: 'hasDonorBadge', // to check if the user has a donor badge
-  args: userAddress ? [userAddress] : undefined,
-  query: { enabled: !!userAddress },
-});
-
+    address: CONTRACT_ADDRESS,
+    abi: AidChainAbi,
+    functionName: 'hasDonorBadge', // to check if the user has a donor badge
+    args: userAddress ? [userAddress] : undefined,
+    query: { enabled: !!userAddress },
+  });
 
   const hasDonated = useReadContract({
     address: CONTRACT_ADDRESS,
@@ -81,57 +80,58 @@ export const useContract = () => {
   });
 
   const aidAmount = useReadContract({
-  address: CONTRACT_ADDRESS,
-  abi: AidChainAbi,
-  functionName: 'AID_AMOUNT',
-});
+    address: CONTRACT_ADDRESS,
+    abi: AidChainAbi,
+    functionName: 'AID_AMOUNT',
+  });
 
-   
-
+  // ✅ NEW: Read activeRecipient from smart contract
+  const activeRecipient = useReadContract({
+    address: CONTRACT_ADDRESS,
+    abi: AidChainAbi,
+    functionName: 'activeRecipient', // get the current active recipient from contract
+  });
 
   // Load full AidRequest details
   const [fullAidRequests, setFullAidRequests] = useState<AidRequest[]>([]);
   console.log("📦 aidRequestsList.data:", aidRequestsList.data);
   console.log("📦 RAW aidRequestsList.data:", aidRequestsList.data);
 
+  useEffect(() => {
+    const fetchDetails = async () => {
+      if (!Array.isArray(aidRequestsList.data)) return;
+      const addresses = aidRequestsList.data as string[];
 
-    useEffect(() => {
-      const fetchDetails = async () => {
-        if (!Array.isArray(aidRequestsList.data)) return;
-        const addresses = aidRequestsList.data as string[];
+      const detailedRequests = await Promise.all(
+        addresses.map(async (addr) => {
+          const req = await readContract(config, {
+            address: CONTRACT_ADDRESS,
+            abi: AidChainAbi,
+            functionName: 'aidRequests',
+            args: [addr],
+          });
 
-        const detailedRequests = await Promise.all(
-          addresses.map(async (addr) => {
-            const req = await readContract(config, {
-              address: CONTRACT_ADDRESS,
-              abi: AidChainAbi,
-              functionName: 'aidRequests',
-              args: [addr],
-            });
+          return {
+            recipient: addr,
+            reason: req[1],
+            timestamp: Number(req[2]),
+            approved: req[3],
+            claimed: req[4],
+            location: req[5],
+            name: req[6],
+            contact: req[7],
+          };
+        })
+      );
 
-            return {
-              recipient: addr,
-              reason: req[1],
-              timestamp: Number(req[2]),
-              approved: req[3],
-              claimed: req[4],
-              location: req[5],
-              name: req[6],
-              contact: req[7],
-            };
-          })
-        );
+      setFullAidRequests(detailedRequests);
+    };
 
-        setFullAidRequests(detailedRequests);
-      };
-
-
-      fetchDetails();
-    }, [aidRequestsList.data]);
+    fetchDetails();
+  }, [aidRequestsList.data]);
 
   const loading =
     totalDonated.isLoading ||
-    getDonations.isLoading ||
     aidRequestsList.isLoading ||
     userReq.isLoading ||
     isApproved.isLoading ||
@@ -140,10 +140,10 @@ export const useContract = () => {
 
   const contractState: ContractState = useMemo(() => ({
     totalDonated: totalDonated.data ? String(Number(totalDonated.data) / 1e18) : '0',
-    donations: (getDonations.data ?? []) as Donation[],
+    donations: donationsData as Donation[], // ✅ fixed so always array
     aidRequests: fullAidRequests,
     aidAmount: aidAmount.data ? String(Number(aidAmount.data) / 1e18) : '0',
-    
+    activeRecipient: activeRecipient.data as string, // ✅ added activeRecipient
     userHasApplied:
       !!(userReq.data as AidRequest)?.recipient &&
       (userReq.data as AidRequest)?.recipient !== '0x0000000000000000000000000000000000000000',
@@ -151,12 +151,12 @@ export const useContract = () => {
     userIsApproved: Boolean(isApproved.data),
     userHasClaimed: Boolean(hasClaimed.data),
     userHasDonorNFT: Boolean(hasDonorNFT.data),
-
   }), [
     totalDonated.data,
-    getDonations.data,
+    donationsData,
     fullAidRequests,
     aidAmount.data,
+    activeRecipient.data,
     userReq.data,
     isApproved.data,
     hasClaimed.data,
@@ -164,37 +164,35 @@ export const useContract = () => {
     hasDonorNFT.data,
   ]);
 
+  // ===== WRITE ACTIONS =====
+  const donate = async (_: string, amount: string) =>
+    await writeContract(config, {
+      abi: AidChainAbi,
+      address: CONTRACT_ADDRESS,
+      functionName: 'donate',
+      args: [], //  No arguments passed
+      account: userAddress,
+      value: parseEther(amount),
+      chain: config.chains[0],
+    });
 
-  // Write actions
- const donate = async (_: string, amount: string) =>
-  await writeContract(config, {
-    abi: AidChainAbi,
-    address: CONTRACT_ADDRESS,
-    functionName: 'donate',
-    args: [], //  No arguments passed
-    account: userAddress,
-    value: parseEther(amount),
-    chain: config.chains[0],
-  });
-
-
-    // to apply for aid - recipient only
+  // to apply for aid - recipient only
   const applyForAid = async (
     reason: string,
     location: string,
-    name:string,
+    name: string,
     contact: string
   ) =>
     await writeContract(config, {
-    address: CONTRACT_ADDRESS,
-    abi: AidChainAbi,
-    functionName: 'applyForAid',
-    args: [reason, location, name, contact],
-    account: userAddress!,
-    chain: config.chains[0],
-  });
+      address: CONTRACT_ADDRESS,
+      abi: AidChainAbi,
+      functionName: 'applyForAid',
+      args: [reason, location, name, contact],
+      account: userAddress!,
+      chain: config.chains[0],
+    });
 
-    //to approve a recipient for aid - admin & NFA
+  // to approve a recipient for aid - admin & NFA
   const approveRecipient = async (recipient: string) =>
     await writeContract(config, {
       address: CONTRACT_ADDRESS,
@@ -205,18 +203,18 @@ export const useContract = () => {
       chain: config.chains[0],
     });
 
-    //to reject a recipient for aid - admin only
-    const rejectRecipient = async (recipient: string) =>
-  await writeContract(config, {
-    address: CONTRACT_ADDRESS,
-    abi: AidChainAbi,
-    functionName: 'rejectRecipient',
-    args: [recipient],
-    account: userAddress!,
-    chain: config.chains[0],
-  });
+  // to reject a recipient for aid - admin only
+  const rejectRecipient = async (recipient: string) =>
+    await writeContract(config, {
+      address: CONTRACT_ADDRESS,
+      abi: AidChainAbi,
+      functionName: 'rejectRecipient',
+      args: [recipient],
+      account: userAddress!,
+      chain: config.chains[0],
+    });
 
-    // to claim aid after being approved
+  // to claim aid after being approved
   const claimAid = async () =>
     await writeContract(config, {
       address: CONTRACT_ADDRESS,
@@ -226,7 +224,7 @@ export const useContract = () => {
       chain: config.chains[0],
     });
 
-    // to mint donor NFT - donor only
+  // to mint donor NFT - donor only
   // This function mints a donor NFT to the connected wallet address.
   const mintDonorNFT = async (donorAddress: string) =>
     await writeContract(config, {
@@ -250,16 +248,15 @@ export const useContract = () => {
       chain: config.chains[0],
     });
 
-    //to reset after the user has applied
-    const resetCycle = async () =>
-      await writeContract(config, {
-        address: CONTRACT_ADDRESS,
-        abi: AidChainAbi,
-        functionName: 'resetCycle',
-        account: userAddress!,
-        chain: config.chains[0],
-      });
-
+  // to reset after the user has applied
+  const resetCycle = async () =>
+    await writeContract(config, {
+      address: CONTRACT_ADDRESS,
+      abi: AidChainAbi,
+      functionName: 'resetCycle',
+      account: userAddress!,
+      chain: config.chains[0],
+    });
 
   return {
     contractState,
@@ -274,5 +271,3 @@ export const useContract = () => {
     resetCycle,
   };
 };
-
-

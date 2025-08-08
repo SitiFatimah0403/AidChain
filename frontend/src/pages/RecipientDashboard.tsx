@@ -24,7 +24,7 @@ export const RecipientDashboard: React.FC = () => {
     mintDonorNFT,
     applyForAid,
     claimAid,
-    loading
+    loading,
   } = useContract();
   const { mintBadge } = useBadgeContract();
 
@@ -33,6 +33,8 @@ export const RecipientDashboard: React.FC = () => {
   const [phone, setPhone] = useState('');
   const [name, setName] = useState('');
   const [reason, setReason] = useState('');
+  const { address: userAddress } = useAccount();
+  
 
   const navigate = useNavigate();
   const queryClient = useQueryClient(); // to refetch latest contract data
@@ -136,9 +138,9 @@ export const RecipientDashboard: React.FC = () => {
   }
 
   // 🔍 DEBUGGING: Log aid requests
-useEffect(() => {
-  console.log("📦 contractState.aidRequests:", contractState.aidRequests);
-}, [contractState.aidRequests]);
+  useEffect(() => {
+    console.log("📦 contractState.aidRequests:", contractState.aidRequests);
+  }, [contractState.aidRequests]);
 
 
   const userRequest = contractState.aidRequests.find(
@@ -151,6 +153,10 @@ useEffect(() => {
   console.log("❌ Claimed:", userRequest.claimed);
   console.log("🧠 Type of claimed:", typeof userRequest.claimed);
 }
+
+  console.log("All Donations:", contractState.donations);
+  console.log("Active Recipient:", contractState.activeRecipient);
+  console.log("My Address:", address);
 
 
   return (
@@ -371,45 +377,73 @@ useEffect(() => {
             </div>
           ) : contractState.aidRequests && contractState.aidRequests.length > 0 ? (
             <div className="space-y-4 max-h-96 overflow-y-auto">
-              {contractState.aidRequests.slice(-10).reverse().map((request, index) => (
-                <div key={index} className="p-4 bg-gray-50 rounded-lg">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-medium text-gray-900">
-                      {request.recipient.slice(0, 6)}...{request.recipient.slice(-4)}
-                    </span>
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                        request.approved,
-                        request.claimed
-                      )}`}
-                    >
-                      {getStatusText(request.approved, request.claimed)}
-                    </span>
-          </div>
+              {contractState.aidRequests
+                .filter(request => isAdmin(address) || request.recipient.toLowerCase() === address.toLowerCase()) // ✅ show only mine unless admin
+                .slice(-10)
+                .reverse()
+                .map((request, index) => (
+                  <div key={index} className="p-4 bg-gray-50 rounded-lg">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-medium text-gray-900">
+                        {request.recipient.slice(0, 6)}...{request.recipient.slice(-4)}
+                      </span>
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                          request.approved,
+                          request.claimed
+                        )}`}
+                      >
+                        {getStatusText(request.approved, request.claimed)}
+                      </span>
+                    </div>
 
-          <p className="text-sm text-gray-700"><strong>Name:</strong> {request.name}</p>
-          <p className="text-sm text-gray-700"><strong>Contact:</strong> {request.contact}</p>
-          <p className="text-sm text-gray-700"><strong>Location:</strong> {request.location}</p>
-          <p className="text-sm text-gray-600 mb-1"><strong>Reason:</strong> {request.reason}</p>
-          <p className="text-xs text-gray-500">
-            {new Date(Number(request.timestamp) * 1000).toLocaleDateString('en-GB')} {new Date(Number(request.timestamp) * 1000).toLocaleTimeString('en-GB')}
-          </p>
-        </div>
-      ))}
-    </div>
-  ) : (
-    <div className="text-center py-8">
-      <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-      <p className="text-gray-600">No aid requests yet.</p>
-    </div>
-  )}
-</div>
+                    <p className="text-sm text-gray-700"><strong>Name:</strong> {request.name}</p>
+                    <p className="text-sm text-gray-700"><strong>Contact:</strong> {request.contact}</p>
+                    <p className="text-sm text-gray-700"><strong>Location:</strong> {request.location}</p>
+                    <p className="text-sm text-gray-600 mb-1"><strong>Reason:</strong> {request.reason}</p>
+                    <p className="text-xs text-gray-500">
+                      {new Date(Number(request.timestamp) * 1000).toLocaleDateString('en-GB')}{" "}
+                      {new Date(Number(request.timestamp) * 1000).toLocaleTimeString('en-GB')}
+                    </p>
+
+                    {/* ✅ New section: Donations received for this application */}
+                    <div className="mt-3 border-t pt-2">
+                      <p className="text-sm font-medium text-gray-900 mb-1">Donations Received:</p>
+
+                      {(() => { console.log("Donations array:", contractState.donations); return null; })()}
+
+                      {contractState.donations
+                        .filter(() => true)
+
+
+                        .map((donation, index) => (
+                          <div key={index} className="flex justify-between text-sm text-gray-700">
+                            <span>{donation.donor.slice(0, 6)}...{donation.donor.slice(-4)}</span>
+                            <span>{(Number(donation.amount) / 1e18).toFixed(4)} ETH</span>
+                          </div>
+                        ))
+                      }
+                    </div>
+                      
+                  </div>
+              ))}
+
+          </div>
+            ) : (
+              <div className="text-center py-8">
+                    <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-600">No aid requests yet.</p>
+                  </div>
+                )}
+          </div>
 
       </div>
 
+      
       <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl p-8 text-white">
-        <h2 className="text-2xl font-bold mb-4">How Aid Distribution Works</h2>
-        <div className="grid md:grid-cols-2 gap-6">
+        <h2 className="text-2xl font-bold mb-4">Your Aid Summary</h2>
+          {/*
+        <div className="grid md:grid-cols-2 gap-6 mb-8">
           <div>
             <h3 className="font-semibold mb-2">Automatic Approval (NFA)</h3>
             <p className="text-blue-100 text-sm">
@@ -422,9 +456,29 @@ useEffect(() => {
             <p className="text-blue-100 text-sm">
               Each approved aid request remains active for 14 days, ensuring equal opportunity for all applicants to receive support within the same time frame.
             </p>
-          </div>
+          </div>*/}
+      
+      
+      
+
+      {/* ✅ Added user stats here in same section */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 text-center gap-6 border-t border-white/30 pt-6">
+        
+        <div>
+          <p className="text-sm font-medium text-white/80">ETH Received</p>
+          <p className="text-3xl font-bold">
+            {userRequest?.claimed ? `${contractState.aidAmount || '0'} ETH` : '0 ETH'}
+          </p>
+        </div>
+        <div>
+          <p className="text-sm font-medium text-white/80">Total Donors</p>
+          <p className="text-3xl font-bold">
+            {new Set(contractState.donations.map(d => d.donor.toLowerCase())).size}
+          </p>
         </div>
       </div>
+    </div>
+
         {/* ✅ Floating chatbot */}
                 <GeminiChat />
                       

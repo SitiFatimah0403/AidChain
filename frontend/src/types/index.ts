@@ -31,8 +31,10 @@ export interface ContractState {
   donations: Donation[];
   aidRequests: AidRequest[];
   userHasDonated: boolean;
+  activeRecipient: string;
   userHasApplied: boolean;
   userIsApproved: boolean;
   userHasClaimed: boolean;
   aidAmount: string; 
+  
 }
