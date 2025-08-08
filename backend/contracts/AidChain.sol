@@ -5,7 +5,6 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
-import "./AidBadgeNFT.sol"; // Importing AidBadgeNFT for minting badges
 
 contract AidChain is ERC721, Ownable {
     using Counters for Counters.Counter;
@@ -78,6 +77,16 @@ contract AidChain is ERC721, Ownable {
     event ApprovedByNFA(address indexed recipient, uint256 timestamp);
     event RejectedByNFA(address indexed recipient, string reason); // newly added by ain
 
+    // ✅ NEW: Track all reasons that have EVER been approved for a wallet (NFA “ever-approved” rule)
+    mapping(address => mapping(bytes32 => bool)) public hasApprovedReason;
+
+    // ✅ NEW: Tiny internal helper to reset the cycle (used after claim + optional manual)
+    function _resetCycleInternal() internal {
+        activeRecipient = address(0);  //all this perlu utk set new cycle for user
+        cycleClaimed = false;
+        currentCycleStart = 0;
+        currentCycleId += 1;
+    }
     
     function donate() external payable {
         require(msg.value > 0, "Donation must be greater than 0");
@@ -137,7 +146,10 @@ contract AidChain is ERC721, Ownable {
 
         // Check if user is eligible for auto-approval (NFA)
         // Hanya yang dah pernah diluluskan secara manual boleh auto-lulus
-        bool isEligible = approvedRecipients[msg.sender] && !flaggedAddresses[msg.sender];
+        // ✅ UPDATED: NFA now requires the reason to have EVER been approved for this wallet
+        bytes32 reasonHash = keccak256(bytes(reason));
+        bool everApprovedSameReason = hasApprovedReason[msg.sender][reasonHash];
+        bool isEligible = everApprovedSameReason && !flaggedAddresses[msg.sender];
 
         // === Logic below: ===
         // - Kalau first time → tunggu admin lulus
@@ -150,6 +162,8 @@ contract AidChain is ERC721, Ownable {
             aidRequests[msg.sender].approved = true;
             activeRecipient = msg.sender;
             currentCycleStart = block.timestamp;
+            // ✅ Mark this reason as approved (idempotent)
+            hasApprovedReason[msg.sender][reasonHash] = true;
             emit ApprovedByNFA(msg.sender, block.timestamp);
         } else {
             // Rejected by NFA (walaupun dah verified, tapi kena flagged)
@@ -166,6 +180,14 @@ contract AidChain is ERC721, Ownable {
         
         approvedRecipients[recipient] = true;
         aidRequests[recipient].approved = true;
+
+        // ✅ NEW: start a cycle on manual approval as well, so the time lock actually applies
+        activeRecipient = recipient;
+        currentCycleStart = block.timestamp;
+
+        // ✅ NEW: mark this reason as EVER approved (enables NFA for same reason later)
+        bytes32 h = keccak256(bytes(aidRequests[recipient].reason));
+        hasApprovedReason[recipient][h] = true;
         
         emit RecipientApproved(recipient, block.timestamp);
     }
@@ -186,6 +208,9 @@ contract AidChain is ERC721, Ownable {
         payable(msg.sender).transfer(payout);
         
         emit AidClaimed(msg.sender, payout, block.timestamp);
+
+        // ✅ NEW: Auto-reset immediately after a successful claim (smooth demo / no manual button)
+        _resetCycleInternal();
     }
     
     function getDonations() external view returns (Donation[] memory) {
