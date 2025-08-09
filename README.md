@@ -14,8 +14,8 @@ Donors choose whether their donation is public (Sepolia) or confidential (Oasis 
 
 ## 🔎 Overview
 
-AidChain enables donors to send funds directly to approved recipients and allows admins to manage aid requests in a transparent way.  
-Donors can opt to make a confidential donation via Oasis Sapphire — keeping sensitive donor information (amount and/or identity) protected inside a TEE — while recipients and admins use Sepolia for open governance and claims.
+AidChain lets donors send funds directly to verified recipients while giving admins the tools to review, approve, and manage aid requests transparently. Donors can choose to make confidential contributions through Oasis Sapphire, which keeps sensitive details like donor identity and/or donation amount protected inside a Trusted Execution Environment (TEE). Meanwhile, Sepolia is used for transparent governance, approvals, and claims.
+This hybrid approach combines public traceability where it builds trust and privacy where it safeguards sensitive information — making it ideal for humanitarian projects.
 
 This hybrid design gives humanitarian projects flexibility: public traceability where needed, privacy where required.
 
@@ -48,83 +48,14 @@ This hybrid design gives humanitarian projects flexibility: public traceability 
 
 ---
 
-AIDCHAIN/
-├── .vscode/
-├── artifacts/
-├── backend/
-│   ├── api/
-│   │   └── chatbotRoute.js
-│   ├── contracts/
-│   │   ├── AidBadgeNFT.sol
-│   │   └── AidChain.sol
-│   ├── node_modules/
-│   ├── services/
-│   │   └── aidChatBot.js
-│   ├── .env
-│   ├── package-lock.json
-│   ├── package.json
-│   └── server.js
-├── confidential-donations/
-│   ├── artifacts/
-│   ├── cache/
-│   ├── contracts/
-│   ├── ignition/
-│   ├── scripts/
-│   ├── test/
-│   ├── .env
-│   ├── hardhat.config.js
-│   ├── package-lock.json
-│   └── package.json
-├── frontend/
-│   ├── node_modules/
-│   ├── src/
-│   │   ├── admin/
-│   │   │   ├── adminRoute.tsx
-│   │   │   └── isAdmin.ts
-│   │   ├── components/
-│   │   │   ├── BadgeButton.tsx
-│   │   │   ├── ChatBot.tsx
-│   │   │   ├── connectWalletButton.tsx
-│   │   │   ├── DonateButton.tsx
-│   │   │   ├── DonationHistory.tsx
-│   │   │   └── Layout.tsx
-│   │   ├── contracts/
-│   │   │   ├── AidBadgeNFT.json
-│   │   │   ├── AidChain.json
-│   │   │   ├── ConfidentialDonations.json
-│   │   │   ├── donor_badge.json
-│   │   │   └── recipient_badge.json
-│   │   ├── hooks/
-│   │   │   ├── useBadgeContract.ts
-│   │   │   ├── useConfidentialDonationContract.ts
-│   │   │   └── useContract.ts
-│   │   ├── pages/
-│   │   │   ├── AdminPanel.tsx
-│   │   │   ├── ApprovedRecipients.tsx
-│   │   │   ├── DonorDashboard.tsx
-│   │   │   ├── Home.tsx
-│   │   │   └── RecipientDashboard.tsx
-│   │   ├── types/
-│   │   │   └── index.ts
-│   │   ├── App.tsx
-│   │   ├── index.css
-│   │   ├── main.tsx
-│   │   ├── vite-env.d.ts
-│   │   └── wagmisetup.ts
-│   ├── .env
-│   ├── eslint.config.js
-│   ├── index.html
-│   ├── package-lock.json
-│   ├── package.json
-│   ├── postcss.config.js
-│   ├── tailwind.config.js
-│   ├── tsconfig.app.json
-│   ├── tsconfig.json
-│   ├── tsconfig.node.json
-│   └── vite.config.ts
-├── .gitignore
-├── package-lock.json
-└── package.json
+The AidChain project is structured into several key directories and files to separate concerns and organize the codebase effectively. The backend/ directory contains the server-side logic, including the API routes (like chatbotRoute.js), the Solidity smart contracts (AidChain.sol and AidBadgeNFT.sol), and backend services such as the aid chatbot (aidChatBot.js). It also holds its own Node.js dependencies, environment variables (.env), and server entry point (server.js).
+
+The confidential-donations/ folder is a distinct module focused on confidential donation functionality. It contains its own smart contracts, scripts, tests, and configuration files (like hardhat.config.js) along with separate Node.js dependencies and environment settings. This separation allows it to be developed and deployed independently from the main AidChain backend.
+
+The frontend/ folder houses the React-based user interface and is subdivided into multiple layers. Inside src/, there are folders for admin-related logic (admin/), reusable UI components (components/), contract ABIs (contracts/), custom React hooks for blockchain interactions (hooks/), and different page components (pages/). The types/ folder contains TypeScript type definitions used throughout the frontend. The frontend also includes important configuration files and assets such as the environment variables file (.env), build and linting configs (vite.config.ts, eslint.config.js), styling (index.css and Tailwind config), and the main entry points (main.tsx, App.tsx). This setup supports modular, scalable front-end development integrated tightly with blockchain contracts and wallet interactions.
+
+At the root level of the project, there are general configuration and dependency management files, including .gitignore to exclude files from version control, and package.json / package-lock.json files for managing npm packages across the entire project or monorepo structure.
+
 
 ---
 
