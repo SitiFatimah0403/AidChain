@@ -7,9 +7,8 @@ Donors choose whether their donation is public (Sepolia) or confidential (Oasis 
 
 ## ✅ Quick Links
 
-- Live Demo: [https://your-demo-link.example](https://your-demo-link.example)
-- Video Demo (≤ 3 min): [https://your-video-link.example](https://your-video-link.example)
-- GitHub Repo: [https://github.com/your-username/aidchain](https://github.com/your-username/aidchain)
+- Video Demo (≤ 3 min): [https://your-video-link.example]
+- GitHub Repo: [https://github.com/SitiFatimah0403/AidChain.git]
 
 ---
 
