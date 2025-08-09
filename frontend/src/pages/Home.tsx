@@ -131,6 +131,12 @@ export const Home: React.FC = () => {
         />
       </div>
 
+      {/* How It Works */}
+      <HowItWorks />
+
+      {/* Stats */}
+      <Stats />
+      
       {/* Features */}
       <div className="grid md:grid-cols-3 gap-8">
         <Feature
@@ -151,23 +157,6 @@ export const Home: React.FC = () => {
           text="Our NFA (No Fraud Algorithm) automatically approves legitimate aid requests while preventing abuse through intelligent pattern recognition."
           bg="bg-purple-100"
         />
-      </div>
-
-      {/* How It Works */}
-      <HowItWorks />
-
-      {/* Stats */}
-      <Stats />
-
-      {/* Call To Action */}
-      <div className="text-center bg-gray-50 rounded-2xl p-8">
-        <Globe className="h-16 w-16 text-indigo-600 mx-auto mb-4" />
-        <h2 className="text-3xl font-bold text-gray-900 mb-4">Ready to Make a Difference?</h2>
-        <p className="text-xl text-gray-600 mb-6 max-w-2xl mx-auto">
-          Join the decentralized aid revolution. Every contribution matters, every transaction is transparent,
-          and every participant is rewarded.
-        </p>
-        {!isConnected && <ConnectWalletButton />}
       </div>
 
       {/* Gemini Chat Assistant */}
@@ -261,6 +250,7 @@ const HowItWorks = () => (
   </div>
 );
 
+
 // Stats Section
 const Stats = () => (
   <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-8 text-white">
@@ -283,3 +273,4 @@ const Stats = () => (
     </div>
   </div>
 );
+

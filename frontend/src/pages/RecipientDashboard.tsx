@@ -167,7 +167,7 @@ export const RecipientDashboard: React.FC = () => {
             <div>
               <p className="text-sm font-medium text-gray-600">Total Requests</p>
               <p className="text-2xl font-bold text-gray-900">
-                {contractState.aidRequests?.length ?? 0}
+                {contractState.aidRequests?.filter(d => d.recipient.toLowerCase() === address?.toLowerCase()).length ?? 0}
               </p>
             </div>
             <Users className="h-8 w-8 text-blue-600" />
@@ -179,7 +179,7 @@ export const RecipientDashboard: React.FC = () => {
             <div>
               <p className="text-sm font-medium text-gray-600">Approved</p>
               <p className="text-2xl font-bold text-gray-900">
-                {contractState.aidRequests.filter((r) => r.approved).length}
+                {contractState.aidRequests.filter((r) => r.approved).filter(d => d.recipient.toLowerCase() === address?.toLowerCase()).length}
               </p>
             </div>
             <CheckCircle className="h-8 w-8 text-green-600" />
