@@ -19,7 +19,7 @@ export const isAdmin = (address?: string): boolean => {
 
 //TEMP FOR TESTING! 
 export const getAdminAddresses = (): string[] => {
-  const envValue = "0x018eD13f8a0bA3CB6e50c14a4A39E7b3929BF53c"; // tester's wallet
+  const envValue = "0xEA12ff45281316e5Dc102ac1b59E68340716852F"; // tester's wallet
 
   return envValue.split(',').map(addr => addr.trim().toLowerCase());
 };

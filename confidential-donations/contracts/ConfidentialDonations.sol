@@ -16,21 +16,20 @@ contract ConfidentialDonations {
     // Mapping of donors to donations (stored confidentially in Sapphire)
     mapping(address => Donation[]) private donations;
 
+
     event Donated(address indexed donor, uint256 amount);
 
     /// @notice Accept ETH donation and store it privately
-    function donate() external payable {
+    function confidentialDonate(address recipient) external payable {
         require(msg.value > 0, "Must send ETH");
-
-        donations[msg.sender].push(Donation({
+        donations[recipient].push(Donation({
             amount: msg.value,
             timestamp: block.timestamp
         }));
-
         totalDonated += msg.value;
-
-        emit Donated(msg.sender, msg.value);
+        emit Donated(recipient, msg.value);
     }
+
 
     /// @notice Retrieve donation history (only for sender)
     function getMyDonations() external view returns (Donation[] memory) {

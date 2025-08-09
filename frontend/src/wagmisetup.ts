@@ -1,21 +1,22 @@
 /*
 🔧 Purpose:
 Sets up:
--Supported chain (sepolia)
--Wallet connector (MetaMask)
--Transport (http() RPC connection
--Exports config for use in your main file.
-
+- Supported chains (Sepolia + Sapphire Testnet)
+- Wallet connector (MetaMask)
+- Transport (http() RPC connection)
+- Exports config for use in your main file.
 */
+
 import { http, createConfig } from 'wagmi';
-import { sepolia } from 'wagmi/chains';
+import { sepolia, sapphireTestnet } from 'wagmi/chains';
 import { metaMask } from '@wagmi/connectors';
 
 export const config = createConfig({
-  chains: [sepolia],
+  chains: [sepolia, sapphireTestnet], // ✅ register Sapphire here
   connectors: [metaMask()],
   transports: {
-    [sepolia.id]: http(), // defaults to public RPC for Sepolia
+    [sepolia.id]: http(),           // defaults to public RPC for Sepolia
+    [sapphireTestnet.id]: http(),   // ✅ uses Sapphire's default RPC
   },
-  ssr: false, // If you're using Next.js SSR, set to true
+  ssr: false,
 });

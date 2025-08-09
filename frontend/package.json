@@ -12,6 +12,8 @@
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
     "@oasisprotocol/sapphire-paratime": "^2.2.0",
+    "@oasisprotocol/sapphire-viem-v2": "^2.1.0",
+    "@oasisprotocol/sapphire-wagmi-v2": "^2.1.0",
     "@openzeppelin/contracts": "^4.9.5",
     "@wagmi/connectors": "^5.9.1",
     "detect-port": "^2.1.0",
@@ -22,7 +24,7 @@
     "react-dom": "^18.2.0",
     "react-phone-input-2": "^2.15.1",
     "react-router-dom": "^6.26.0",
-    "viem": "^2.33.2",
+    "viem": "^2.33.3",
     "wagmi": "^2.16.1"
   },
   "devDependencies": {
