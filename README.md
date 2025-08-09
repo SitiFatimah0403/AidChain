@@ -1,22 +1,23 @@
+Siti Fatimah, [10/08/2025 12:39 AM]
 # AidChain
 
-**AidChain** — a decentralized aid distribution platform that combines public transparency with optional donor confidentiality.  
-Donors choose whether their donation is public (**Sepolia**) or confidential (**Oasis Sapphire**). Recipients and admins operate on Sepolia only.
+AidChain — a decentralized aid distribution platform that combines public transparency with optional donor confidentiality.  
+Donors choose whether their donation is public (Sepolia) or confidential (Oasis Sapphire). Recipients and admins operate on Sepolia only.
 
 ---
 
 ## ✅ Quick Links
 
-- **Live Demo:** [https://your-demo-link.example](https://your-demo-link.example)
-- **Video Demo (≤ 3 min):** [https://your-video-link.example](https://your-video-link.example)
-- **GitHub Repo:** [https://github.com/your-username/aidchain](https://github.com/your-username/aidchain)
+- Live Demo: [https://your-demo-link.example](https://your-demo-link.example)
+- Video Demo (≤ 3 min): [https://your-video-link.example](https://your-video-link.example)
+- GitHub Repo: [https://github.com/your-username/aidchain](https://github.com/your-username/aidchain)
 
 ---
 
 ## 🔎 Overview
 
 AidChain enables donors to send funds directly to approved recipients and allows admins to manage aid requests in a transparent way.  
-Donors can opt to make a **confidential donation via Oasis Sapphire** — keeping sensitive donor information (amount and/or identity) protected inside a TEE — while recipients and admins use **Sepolia** for open governance and claims.
+Donors can opt to make a confidential donation via Oasis Sapphire — keeping sensitive donor information (amount and/or identity) protected inside a TEE — while recipients and admins use Sepolia for open governance and claims.
 
 This hybrid design gives humanitarian projects flexibility: public traceability where needed, privacy where required.
 
@@ -24,10 +25,10 @@ This hybrid design gives humanitarian projects flexibility: public traceability 
 
 ## ✨ Key Features
 
-- Role-based UX: **Donor**, **Recipient**, **Admin**.
-- Donor network choice: **Sepolia (public)** or **Oasis Sapphire (confidential)**.
-- On-chain **aid requests** and **admin approvals** (Sepolia).
-- **ConfidentialDonations** contract on Sapphire for donor-private records.
+- Role-based UX: Donor, Recipient, Admin.
+- Donor network choice: Sepolia (public) or Oasis Sapphire (confidential).
+- On-chain aid requests and admin approvals (Sepolia).
+- ConfidentialDonations contract on Sapphire for donor-private records.
 - NFT badges for donors & recipients.
 - Express backend for an AI/chatbot assistant (optional, separate from blockchain).
 - Simple React UI (connect wallet → choose role → interact).
@@ -36,12 +37,12 @@ This hybrid design gives humanitarian projects flexibility: public traceability 
 
 ## 🧰 Tech Stack
 
-- **Frontend:** React, Vite, TypeScript  
-- **Wallet/Web3:** Wagmi, viem, MetaMask  
-- **Smart Contracts:** Solidity, Hardhat  
-- **Networks:** Ethereum Sepolia, Oasis Sapphire Testnet  
-- **Backend (optional):** Express.js (chatbot API)  
-- **NFT Storage:** Pinata / IPFS (optional)
+- Frontend: React, Vite, TypeScript  
+- Wallet/Web3: Wagmi, viem, MetaMask  
+- Smart Contracts: Solidity, Hardhat  
+- Networks: Ethereum Sepolia, Oasis Sapphire Testnet  
+- Backend (optional): Express.js (chatbot API)  
+- NFT Storage: Pinata / IPFS (optional)
 
 ---
 
@@ -85,25 +86,25 @@ npm install
 
 ### 3. Environment Variables
 
-Create `.env` files in each directory as follows:
+Create .env files in each directory as follows:
 
 ---
 
-#### **Frontend (`/frontend/.env`)**
+#### Frontend (`/frontend/.env`)
 ```env
 # Contract addresses (replace with deployed ones)
 VITE_BADGE_CONTRACT=0xYourSepoliaBadgeContractAddress
 VITE_AID_CONTRACT=0xYourSepoliaAidChainContractAddress
 VITE_CONFIDENTIAL_DONATION_CONTRACT=0xYourSapphireConfidentialContractAddress
 
-#### **Backend (/backend/.env)**
+#### Backend (/backend/.env)
 # Gemini API Key for chatbot integration
 GEMINI_API_KEY=your_gemini_api_key_here
 # Express server port
 PORT=5000
 
 
-#### **Confidential Donations (/confidential-donations/.env)**
+#### Confidential Donations (/confidential-donations/.env)
 # Your deployer wallet private key (DO NOT COMMIT)
 PRIVATE_KEY=your_deployer_private_key_here
 # Contract address on Sapphire for confidential donations
@@ -122,9 +123,9 @@ VITE_CONFIDENTIAL_DONATION_CONTRACT=0xYourSapphireConfidentialContractAddress
 ### 5. Contract Addresses
 | Contract              | Network  | Address                                     |
 | --------------------- | -------- | ------------------------------------------- |
-| AidChain              | Sepolia  | `0xYourSepoliaAidChainAddress`              |
-| AidBadgeNFT           | Sepolia  | `0xYourSepoliaNFTAddress`                   |
-| ConfidentialDonations | Sapphire | `0xYourSapphireConfidentialContractAddress` |
+| AidChain              | Sepolia  | 0xYourSepoliaAidChainAddress              |
+| AidBadgeNFT           | Sepolia  | 0xYourSepoliaNFTAddress                   |
+| ConfidentialDonations | Sapphire | 0xYourSapphireConfidentialContractAddress |
 
 ### 6.  Testing Instructions
 
@@ -137,6 +138,7 @@ VITE_CONFIDENTIAL_DONATION_CONTRACT=0xYourSapphireConfidentialContractAddress
     - Currency: TEST
     - Faucet: https://faucet.oasis.dev
 
+Siti Fatimah, [10/08/2025 12:39 AM]
 ### 7.  Test Cases
 A. Connect Wallet
 Open the frontend.
@@ -201,14 +203,3 @@ Authors:
  - Nuraina Elayani : 223230@student.upm.edu.my
 
 Contributions welcome via PRs or Issues.
-
-
-
-
-
-
-
-
-
-
-
