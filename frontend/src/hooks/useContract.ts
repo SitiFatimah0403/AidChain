@@ -2,6 +2,7 @@ import { useAccount, usePublicClient, useReadContract, useWalletClient } from 'w
 import { writeContract, readContract } from '@wagmi/core';
 import { parseEther } from 'viem';
 import type { Abi } from 'viem';
+import BadgeNFTAbiJson from '@/contracts/AidBadgeNFT.json';
 import AidChainAbiJson from '@/contracts/AidChain.json';
 import type { ContractState, Donation, AidRequest } from '@/types';
 import { config } from '@/wagmisetup';
@@ -12,6 +13,8 @@ const CONTRACT_ADDRESS = import.meta.env.VITE_AID_CONTRACT as `0x${string}`;
 console.log("Loaded contract address:", CONTRACT_ADDRESS);
 
 const AidChainAbi = AidChainAbiJson.abi as Abi; // Cast the imported JSON ABI to the Abi type
+const VITE_BADGE_CONTRACT = import.meta.env.VITE_BADGE_CONTRACT as `0x${string}`;
+const BadgeNFTAbi = BadgeNFTAbiJson.abi as Abi;
 
 // This custom hook provides functions to interact with the AidChain smart contract.
 export const useContract = () => {
@@ -130,6 +133,14 @@ export const useContract = () => {
     fetchDetails();
   }, [aidRequestsList.data]);
 
+   const recipientNFTBalance = useReadContract({
+      address: import.meta.env.VITE_BADGE_CONTRACT as `0x${string}`,
+      abi: BadgeNFTAbi, // import your AidBadgeNFT ABI
+      functionName: 'balanceOf',
+      args: userAddress ? [userAddress] : undefined,
+      query: { enabled: !!userAddress },
+    });
+
   const loading =
     totalDonated.isLoading ||
     aidRequestsList.isLoading ||
@@ -151,6 +162,7 @@ export const useContract = () => {
     userIsApproved: Boolean(isApproved.data),
     userHasClaimed: Boolean(hasClaimed.data),
     userHasDonorNFT: Boolean(hasDonorNFT.data),
+    recipientNFTBalance: Number(recipientNFTBalance.data || 0),
   }), [
     totalDonated.data,
     donationsData,
@@ -258,6 +270,7 @@ export const useContract = () => {
       chain: config.chains[0],
     });
 
+
   return {
     contractState,
     loading,
@@ -269,5 +282,6 @@ export const useContract = () => {
     mintDonorNFT,
     mintRecipientNFT,
     resetCycle,
+    recipientNFTBalance: Number(recipientNFTBalance || 0)
   };
 };

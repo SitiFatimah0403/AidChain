@@ -10,6 +10,7 @@ export const AdminPanel: React.FC = () => {
   const {
     contractState,
     approveRecipient,
+    rejectRecipient,
     mintDonorNFT,
     mintRecipientNFT,
     resetCycle,
@@ -17,6 +18,7 @@ export const AdminPanel: React.FC = () => {
   } = useContract();
 
   const queryClient = useQueryClient();
+  
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -38,6 +40,21 @@ export const AdminPanel: React.FC = () => {
       setIsSubmitting(false);
     }
   };
+
+  const handleRejectRecipient = async (recipient: string) => {
+    try {
+      setIsSubmitting(true);
+      await rejectRecipient(recipient); // from useContract
+      await queryClient.invalidateQueries();
+      alert('Recipient rejected successfully!');
+    } catch (error) {
+      console.error('Rejection failed:', error);
+      alert('Rejection failed. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
 
   const handleResetCycle = async () => {
     try {
@@ -120,6 +137,7 @@ export const AdminPanel: React.FC = () => {
           loading={loading}
           requests={contractState.aidRequests}
           handleApprove={handleApproveRecipient}
+          handleReject={handleRejectRecipient}
           isSubmitting={isSubmitting}
         />
         <NFTManagement
@@ -170,7 +188,7 @@ const StatCard = ({ title, value, icon }: { title: string; value: number; icon: 
 );
 
 // Aid Requests Section
-const AidRequests = ({ loading, requests, handleApprove, isSubmitting }) => (
+const AidRequests = ({ loading, requests, handleApprove, handleReject, isSubmitting }) => (
   <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
     <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
       <Shield className="h-6 w-6 text-indigo-600 mr-2" />
@@ -201,6 +219,13 @@ const AidRequests = ({ loading, requests, handleApprove, isSubmitting }) => (
                       title="Approve"
                     >
                       <CheckCircle className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => handleReject(r.recipient)}
+                      disabled={isSubmitting}
+                      className="p-1 bg-red-600 hover:bg-red-700 text-white rounded"
+                      title="Reject">
+                      <XCircle className="h-4 w-4" />
                     </button>
                     <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">Pending</span>
                   </div>

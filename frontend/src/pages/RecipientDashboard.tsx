@@ -215,7 +215,7 @@ export const RecipientDashboard: React.FC = () => {
       <div className="grid lg:grid-cols-2 gap-8">
         <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
           {/*NAK TESTING <p>userRequest exists: {userRequest ? '✅ YES' : '❌ NO'}</p>*/}
-            {!userRequest ? (
+            {(!userRequest || (userRequest.claimed && contractState.recipientNFTBalance > 0)) ? (
             <>
               <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
                 <Users className="h-6 w-6 text-blue-600 mr-2" />

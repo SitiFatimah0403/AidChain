@@ -36,5 +36,5 @@ export interface ContractState {
   userIsApproved: boolean;
   userHasClaimed: boolean;
   aidAmount: string; 
-  
+  recipientNFTBalance: number
 }
