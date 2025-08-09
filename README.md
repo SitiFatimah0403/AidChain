@@ -1,4 +1,3 @@
-Siti Fatimah, [10/08/2025 12:39 AM]
 # AidChain
 
 AidChain — a decentralized aid distribution platform that combines public transparency with optional donor confidentiality.  
@@ -50,6 +49,86 @@ This hybrid design gives humanitarian projects flexibility: public traceability 
 
 ---
 
+AIDCHAIN/
+├── .vscode/
+├── artifacts/
+├── backend/
+│   ├── api/
+│   │   └── chatbotRoute.js
+│   ├── contracts/
+│   │   ├── AidBadgeNFT.sol
+│   │   └── AidChain.sol
+│   ├── node_modules/
+│   ├── services/
+│   │   └── aidChatBot.js
+│   ├── .env
+│   ├── package-lock.json
+│   ├── package.json
+│   └── server.js
+├── confidential-donations/
+│   ├── artifacts/
+│   ├── cache/
+│   ├── contracts/
+│   ├── ignition/
+│   ├── scripts/
+│   ├── test/
+│   ├── .env
+│   ├── hardhat.config.js
+│   ├── package-lock.json
+│   └── package.json
+├── frontend/
+│   ├── node_modules/
+│   ├── src/
+│   │   ├── admin/
+│   │   │   ├── adminRoute.tsx
+│   │   │   └── isAdmin.ts
+│   │   ├── components/
+│   │   │   ├── BadgeButton.tsx
+│   │   │   ├── ChatBot.tsx
+│   │   │   ├── connectWalletButton.tsx
+│   │   │   ├── DonateButton.tsx
+│   │   │   ├── DonationHistory.tsx
+│   │   │   └── Layout.tsx
+│   │   ├── contracts/
+│   │   │   ├── AidBadgeNFT.json
+│   │   │   ├── AidChain.json
+│   │   │   ├── ConfidentialDonations.json
+│   │   │   ├── donor_badge.json
+│   │   │   └── recipient_badge.json
+│   │   ├── hooks/
+│   │   │   ├── useBadgeContract.ts
+│   │   │   ├── useConfidentialDonationContract.ts
+│   │   │   └── useContract.ts
+│   │   ├── pages/
+│   │   │   ├── AdminPanel.tsx
+│   │   │   ├── ApprovedRecipients.tsx
+│   │   │   ├── DonorDashboard.tsx
+│   │   │   ├── Home.tsx
+│   │   │   └── RecipientDashboard.tsx
+│   │   ├── types/
+│   │   │   └── index.ts
+│   │   ├── App.tsx
+│   │   ├── index.css
+│   │   ├── main.tsx
+│   │   ├── vite-env.d.ts
+│   │   └── wagmisetup.ts
+│   ├── .env
+│   ├── eslint.config.js
+│   ├── index.html
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── postcss.config.js
+│   ├── tailwind.config.js
+│   ├── tsconfig.app.json
+│   ├── tsconfig.json
+│   ├── tsconfig.node.json
+│   └── vite.config.ts
+├── .gitignore
+├── package-lock.json
+└── package.json
+
+---
+
 ## ⚙️ Setup & Local Development
 
 ### Prerequisites
@@ -60,11 +139,16 @@ This hybrid design gives humanitarian projects flexibility: public traceability 
 
 ---
 
-### 1. Clone the Repo
+### Step by Step Guidelines 
 
 ---
 
 ```bash
+
+### 1. Clone the Repo
+
+---
+
 git clone https://github.com/your-username/aidchain.git
 cd aidchain
 
@@ -134,63 +218,49 @@ VITE_CONFIDENTIAL_DONATION_CONTRACT=0xYourSapphireConfidentialContractAddress
 
 - Sapphire Testnet: Add network manually in MetaMask:
     - RPC: https://testnet.sapphire.oasis.dev
-    - Chain ID: 0x5aff
+    - Chain ID : 23295
     - Currency: TEST
     - Faucet: https://faucet.oasis.dev
 
-Siti Fatimah, [10/08/2025 12:39 AM]
+
 ### 7.  Test Cases
 A. Connect Wallet
-Open the frontend.
-
-Click Connect Wallet and connect MetaMask.
+- Open the frontend.
+- Click Connect Wallet and connect MetaMask.
 
 B. Donate via Sepolia
-Choose Sepolia as the network.
-
-Enter recipient and amount.
-
-Confirm in MetaMask.
-
-Check TX in Sepolia Explorer.
+- Choose Sepolia as the network.
+- Enter recipient and amount.
+- Confirm in MetaMask.
+- Check TX in Sepolia Explorer.
 
 C. Donate via Sapphire
-Switch to Sapphire Testnet.
-
-Enter recipient and amount.
-
-Confirm in MetaMask.
-
-Verify that details are private on-chain.
+- Switch to Sapphire Testnet.
+- Enter recipient and amount.
+- Confirm in MetaMask.
+- Verify that details are private on-chain.
 
 D. Mint NFT Badge
-After donating or being approved, click Mint Badge.
-
-Confirm TX in MetaMask.
+- After donating or being approved, click Mint Badge.
+- Confirm TX in MetaMask.
 
 E. Admin Approves Recipient
-Log in as Admin.
-
-Approve aid requests.
+- Log in as Admin.
+- Approve aid requests.
 
 F. Recipient Claims Aid
-Log in as Recipient.
-
-Click Claim Aid and confirm.
+- Log in as Recipient.
+- Click Claim Aid and confirm.
 
 🔍 Verifying Confidentiality (Sapphire)
-Public explorers show TX, but not donor details or amounts.
-
-Only the donor can retrieve their donation history via getMyDonations().
+- Public explorers show TX, but not donor details or amounts.
+- Only the donor can retrieve their donation history via getMyDonations().
 
 🎯 SDG Alignment
-SDG 16 – Peace, Justice and Strong Institutions: Transparent aid distribution.
-
-SDG 17 – Partnerships for the Goals: Collaboration between donors, NGOs, and developers.
-
-SDG 1 – No Poverty: Direct support to people in need.
-
-SDG 10 – Reduced Inequalities: Equal access to financial aid.
+- SDG 16 – Peace, Justice and Strong Institutions: Transparent aid distribution.
+- SDG 17 – Partnerships for the Goals: Collaboration between donors, NGOs, and developers.
+- SDG 1 – No Poverty: Direct support to people in need.
+- SDG 10 – Reduced Inequalities: Equal access to financial aid.
 
 📄 License
 This project is released under the MIT License.
