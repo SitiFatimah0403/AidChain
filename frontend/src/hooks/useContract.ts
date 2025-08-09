@@ -1,104 +1,125 @@
-import { useAccount, usePublicClient, useReadContract, useWalletClient } from 'wagmi';
-import { writeContract, readContract } from '@wagmi/core';
-import { parseEther } from 'viem';
-import type { Abi } from 'viem';
-import BadgeNFTAbiJson from '@/contracts/AidBadgeNFT.json';
+import { useAccount, useReadContract } from 'wagmi';
+import { writeContract, readContract, switchChain as coreSwitchChain, getChainId } from '@wagmi/core';
+import { parseEther, type Abi, type Address } from 'viem';
 import AidChainAbiJson from '@/contracts/AidChain.json';
+import BadgeNFTAbiJson from '@/contracts/AidBadgeNFT.json';
 import type { ContractState, Donation, AidRequest } from '@/types';
 import { config } from '@/wagmisetup';
 import { useMemo, useEffect, useState } from 'react';
-import { Address } from 'viem';
+import { sepolia } from 'wagmi/chains';
 
+// ===== ENV ADDRESSES =====
 const CONTRACT_ADDRESS = import.meta.env.VITE_AID_CONTRACT as `0x${string}`;
-console.log("Loaded contract address:", CONTRACT_ADDRESS);
+const BADGE_CONTRACT = import.meta.env.VITE_BADGE_CONTRACT as `0x${string}`;
 
-const AidChainAbi = AidChainAbiJson.abi as Abi; // Cast the imported JSON ABI to the Abi type
-const VITE_BADGE_CONTRACT = import.meta.env.VITE_BADGE_CONTRACT as `0x${string}`;
+const AidChainAbi = AidChainAbiJson.abi as Abi;
 const BadgeNFTAbi = BadgeNFTAbiJson.abi as Abi;
 
-// This custom hook provides functions to interact with the AidChain smart contract.
+// ===== Helper: force switch to Sepolia before any AidChain write =====
+const ensureSepolia = async () => {
+  const current = await getChainId(config);
+  if (current !== sepolia.id) {
+    await coreSwitchChain(config, { chainId: sepolia.id });
+  }
+};
+
+// This custom hook provides functions to interact with the AidChain smart contract (Sepolia)
 export const useContract = () => {
   const { address: userAddress } = useAccount();
-  const { data: walletClient } = useWalletClient();
-  const publicClient = usePublicClient();
 
-  // ===== READ CONTRACTS =====
+  // ===== READ CONTRACTS (all pinned to Sepolia) =====
   const totalDonated = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: AidChainAbi,
-    functionName: 'totalDonated', //call totalDonated function from the contract
+    functionName: 'totalDonated',
+    chainId: sepolia.id,
   });
 
-  // ✅ FIX: Destructure .data and default to [] so donations is always an array
   const { data: donationsData = [] } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: AidChainAbi,
-    functionName: 'getDonations', //call getDonations function from the contract
-  });
+    functionName: 'getDonations',
+    chainId: sepolia.id,
+  }) as { data: Donation[] | undefined };
 
   const aidRequestsList = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: AidChainAbi,
-    functionName: 'getAidRequests', //call getAidRequests function from the contract
+    functionName: 'getAidRequests',
+    chainId: sepolia.id,
   });
 
   const userReq = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: AidChainAbi,
-    functionName: 'aidRequests', //call aidRequests function from the contract
+    functionName: 'aidRequests',
     args: userAddress ? [userAddress] : undefined,
     query: { enabled: !!userAddress },
+    chainId: sepolia.id,
   });
 
   const isApproved = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: AidChainAbi,
-    functionName: 'approvedRecipients', //call approvedRecipients function from the contract
+    functionName: 'approvedRecipients',
     args: userAddress ? [userAddress] : undefined,
     query: { enabled: !!userAddress },
+    chainId: sepolia.id,
   });
 
   const hasClaimed = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: AidChainAbi,
-    functionName: 'hasClaimedAid', //call hasClaimedAid function from the contract
+    functionName: 'hasClaimedAid',
     args: userAddress ? [userAddress] : undefined,
     query: { enabled: !!userAddress },
+    chainId: sepolia.id,
   });
 
   const hasDonorNFT = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: AidChainAbi,
-    functionName: 'hasDonorBadge', // to check if the user has a donor badge
+    functionName: 'hasDonorBadge',
     args: userAddress ? [userAddress] : undefined,
     query: { enabled: !!userAddress },
+    chainId: sepolia.id,
   });
 
   const hasDonated = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: AidChainAbi,
-    functionName: 'hasDonated', //call hasDonated function from the contract
+    functionName: 'hasDonated',
     args: userAddress ? [userAddress] : undefined,
     query: { enabled: !!userAddress },
+    chainId: sepolia.id,
   });
 
   const aidAmount = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: AidChainAbi,
     functionName: 'AID_AMOUNT',
+    chainId: sepolia.id,
   });
 
-  // ✅ NEW: Read activeRecipient from smart contract
   const activeRecipient = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: AidChainAbi,
-    functionName: 'activeRecipient', // get the current active recipient from contract
+    functionName: 'activeRecipient',
+    chainId: sepolia.id,
   });
 
-  // Load full AidRequest details
+  // Badge NFT (assumed on Sepolia)
+  const recipientNFTBalance = useReadContract({
+    address: BADGE_CONTRACT,
+    abi: BadgeNFTAbi,
+    functionName: 'balanceOf',
+    args: userAddress ? [userAddress as Address] : undefined,
+    query: { enabled: !!userAddress },
+    chainId: sepolia.id,
+  });
+
+  // ===== Load full AidRequest details (pin readContract to Sepolia) =====
   const [fullAidRequests, setFullAidRequests] = useState<AidRequest[]>([]);
-  console.log("📦 aidRequestsList.data:", aidRequestsList.data);
-  console.log("📦 RAW aidRequestsList.data:", aidRequestsList.data);
 
   useEffect(() => {
     const fetchDetails = async () => {
@@ -111,19 +132,21 @@ export const useContract = () => {
             address: CONTRACT_ADDRESS,
             abi: AidChainAbi,
             functionName: 'aidRequests',
-            args: [addr],
+            args: [addr as Address],
+            chainId: sepolia.id,
           });
 
+          // req tuple: [recipient, reason, timestamp, approved, claimed, location, name, contact]
           return {
             recipient: addr,
-            reason: req[1],
-            timestamp: Number(req[2]),
-            approved: req[3],
-            claimed: req[4],
-            location: req[5],
-            name: req[6],
-            contact: req[7],
-          };
+            reason: String((req as any)[1]),
+            timestamp: Number((req as any)[2]),
+            approved: Boolean((req as any)[3]),
+            claimed: Boolean((req as any)[4]),
+            location: String((req as any)[5]),
+            name: String((req as any)[6]),
+            contact: String((req as any)[7]),
+          } as AidRequest;
         })
       );
 
@@ -133,155 +156,183 @@ export const useContract = () => {
     fetchDetails();
   }, [aidRequestsList.data]);
 
-   const recipientNFTBalance = useReadContract({
-      address: import.meta.env.VITE_BADGE_CONTRACT as `0x${string}`,
-      abi: BadgeNFTAbi, // import your AidBadgeNFT ABI
-      functionName: 'balanceOf',
-      args: userAddress ? [userAddress] : undefined,
-      query: { enabled: !!userAddress },
-    });
-
   const loading =
     totalDonated.isLoading ||
     aidRequestsList.isLoading ||
     userReq.isLoading ||
     isApproved.isLoading ||
     hasClaimed.isLoading ||
-    hasDonated.isLoading;
+    hasDonated.isLoading ||
+    aidAmount.isLoading ||
+    activeRecipient.isLoading ||
+    recipientNFTBalance.isLoading;
 
-  const contractState: ContractState = useMemo(() => ({
-    totalDonated: totalDonated.data ? String(Number(totalDonated.data) / 1e18) : '0',
-    donations: donationsData as Donation[], // ✅ fixed so always array
-    aidRequests: fullAidRequests,
-    aidAmount: aidAmount.data ? String(Number(aidAmount.data) / 1e18) : '0',
-    activeRecipient: activeRecipient.data as string, // ✅ added activeRecipient
-    userHasApplied:
-      !!(userReq.data as AidRequest)?.recipient &&
-      (userReq.data as AidRequest)?.recipient !== '0x0000000000000000000000000000000000000000',
-    userHasDonated: Boolean(hasDonated.data),
-    userIsApproved: Boolean(isApproved.data),
-    userHasClaimed: Boolean(hasClaimed.data),
-    userHasDonorNFT: Boolean(hasDonorNFT.data),
-    recipientNFTBalance: Number(recipientNFTBalance.data || 0),
-  }), [
-    totalDonated.data,
-    donationsData,
-    fullAidRequests,
-    aidAmount.data,
-    activeRecipient.data,
-    userReq.data,
-    isApproved.data,
-    hasClaimed.data,
-    hasDonated.data,
-    hasDonorNFT.data,
-  ]);
+  const contractState: ContractState = useMemo(
+    () => ({
+      totalDonated: totalDonated.data ? String(Number(totalDonated.data) / 1e18) : '0',
+      donations: (donationsData as Donation[]) ?? [],
+      aidRequests: fullAidRequests,
+      aidAmount: aidAmount.data ? String(Number(aidAmount.data) / 1e18) : '0',
+      activeRecipient:
+        (activeRecipient.data as string) ?? '0x0000000000000000000000000000000000000000',
+      userHasApplied:
+        !!(userReq.data as any)?.recipient &&
+        (userReq.data as any)?.recipient !== '0x0000000000000000000000000000000000000000',
+      userHasDonated: Boolean(hasDonated.data),
+      userIsApproved: Boolean(isApproved.data),
+      userHasClaimed: Boolean(hasClaimed.data),
+      userHasDonorNFT: Boolean(hasDonorNFT.data),
+      recipientNFTBalance: Number(recipientNFTBalance.data || 0),
+    }),
+    [
+      totalDonated.data,
+      donationsData,
+      fullAidRequests,
+      aidAmount.data,
+      activeRecipient.data,
+      userReq.data,
+      isApproved.data,
+      hasClaimed.data,
+      hasDonated.data,
+      hasDonorNFT.data,
+      recipientNFTBalance.data,
+    ]
+  );
 
-  // ===== WRITE ACTIONS =====
-  const donate = async (_: string, amount: string) =>
-    await writeContract(config, {
+  // ===== WRITE ACTIONS (all force Sepolia) =====
+
+  // Donor -> plain donate on AidChain (Sepolia)
+  const donate = async (_: string, amount: string) => {
+    if (!userAddress) throw new Error('Wallet not connected');
+    await ensureSepolia();
+
+    return await writeContract(config, {
       abi: AidChainAbi,
       address: CONTRACT_ADDRESS,
       functionName: 'donate',
-      args: [], //  No arguments passed
-      account: userAddress,
+      args: [],
+      account: userAddress as Address,
       value: parseEther(amount),
-      chain: config.chains[0],
+      chain: sepolia,
     });
+  };
 
-  // to apply for aid - recipient only
-  const applyForAid = async (
-    reason: string,
-    location: string,
-    name: string,
-    contact: string
-  ) =>
-    await writeContract(config, {
+  // Recipient -> apply for aid (Sepolia)
+  const applyForAid = async (reason: string, location: string, name: string, contact: string) => {
+    if (!userAddress) throw new Error('Wallet not connected');
+    await ensureSepolia();
+
+    return await writeContract(config, {
       address: CONTRACT_ADDRESS,
       abi: AidChainAbi,
       functionName: 'applyForAid',
       args: [reason, location, name, contact],
-      account: userAddress!,
-      chain: config.chains[0],
+      account: userAddress as Address,
+      chain: sepolia,
     });
+  };
 
-  // to approve a recipient for aid - admin & NFA
-  const approveRecipient = async (recipient: string) =>
-    await writeContract(config, {
+  // Admin/NFA -> approve recipient (Sepolia)
+  const approveRecipient = async (recipient: string) => {
+    if (!userAddress) throw new Error('Wallet not connected');
+    await ensureSepolia();
+
+    return await writeContract(config, {
       address: CONTRACT_ADDRESS,
       abi: AidChainAbi,
       functionName: 'approveRecipient',
-      args: [recipient],
-      account: userAddress!,
-      chain: config.chains[0],
+      args: [recipient as Address],
+      account: userAddress as Address,
+      chain: sepolia,
     });
+  };
 
-  // to reject a recipient for aid - admin only
-  const rejectRecipient = async (recipient: string) =>
-    await writeContract(config, {
+  // Admin -> reject recipient (Sepolia)
+  const rejectRecipient = async (recipient: string) => {
+    if (!userAddress) throw new Error('Wallet not connected');
+    await ensureSepolia();
+
+    return await writeContract(config, {
       address: CONTRACT_ADDRESS,
       abi: AidChainAbi,
       functionName: 'rejectRecipient',
-      args: [recipient],
-      account: userAddress!,
-      chain: config.chains[0],
+      args: [recipient as Address],
+      account: userAddress as Address,
+      chain: sepolia,
     });
+  };
 
-  // to claim aid after being approved
-  const claimAid = async () =>
-    await writeContract(config, {
+  // Recipient -> claim aid (Sepolia)
+  const claimAid = async () => {
+    if (!userAddress) throw new Error('Wallet not connected');
+    await ensureSepolia();
+
+    return await writeContract(config, {
       address: CONTRACT_ADDRESS,
       abi: AidChainAbi,
       functionName: 'claimAid',
-      account: userAddress!,
-      chain: config.chains[0],
+      account: userAddress as Address,
+      chain: sepolia,
     });
+  };
 
-  // to mint donor NFT - donor only
-  // This function mints a donor NFT to the connected wallet address.
-  const mintDonorNFT = async (donorAddress: string) =>
-    await writeContract(config, {
+  // Donor -> mint donor NFT (Sepolia)
+  const mintDonorNFT = async (donorAddress: string) => {
+    if (!userAddress) throw new Error('Wallet not connected');
+    await ensureSepolia();
+
+    return await writeContract(config, {
       address: CONTRACT_ADDRESS,
       abi: AidChainAbi,
       functionName: 'mintDonorNFT',
-      args: [donorAddress],
-      account: userAddress!,
-      chain: config.chains[0],
+      args: [donorAddress as Address],
+      account: userAddress as Address,
+      chain: sepolia,
     });
+  };
 
-  // This function mints a recipient NFT to the specified recipient address.
-  // It is used by the admin to mint NFTs for approved recipients.
-  const mintRecipientNFT = async (recipientAddress: string) =>
-    await writeContract(config, {
+  // Admin -> mint recipient NFT (Sepolia)
+  const mintRecipientNFT = async (recipientAddress: string) => {
+    if (!userAddress) throw new Error('Wallet not connected');
+    await ensureSepolia();
+
+    return await writeContract(config, {
       address: CONTRACT_ADDRESS,
       abi: AidChainAbi,
       functionName: 'mintRecipientNFT',
-      args: [recipientAddress],
-      account: userAddress!,
-      chain: config.chains[0],
+      args: [recipientAddress as Address],
+      account: userAddress as Address,
+      chain: sepolia,
     });
+  };
 
-  // to reset after the user has applied
-  const resetCycle = async () =>
-    await writeContract(config, {
+  // Admin -> reset cycle (Sepolia)
+  const resetCycle = async () => {
+    if (!userAddress) throw new Error('Wallet not connected');
+    await ensureSepolia();
+
+    return await writeContract(config, {
       address: CONTRACT_ADDRESS,
       abi: AidChainAbi,
       functionName: 'resetCycle',
-      account: userAddress!,
-      chain: config.chains[0],
+      account: userAddress as Address,
+      chain: sepolia,
     });
-
+  };
 
   return {
     contractState,
     loading,
-    donate,
-    applyForAid,
-    approveRecipient,
-    rejectRecipient,
-    claimAid,
-    mintDonorNFT,
-    mintRecipientNFT,
-    resetCycle,
-    recipientNFTBalance: Number(recipientNFTBalance || 0)
+    donate,              // Sepolia
+    applyForAid,         // Sepolia
+    approveRecipient,    // Sepolia
+    rejectRecipient,     // Sepolia
+    claimAid,            // Sepolia
+    mintDonorNFT,        // Sepolia
+    mintRecipientNFT,    // Sepolia
+    resetCycle,          // Sepolia
+    recipientNFTBalance: Number(recipientNFTBalance.data || 0),
   };
 };
+
+
