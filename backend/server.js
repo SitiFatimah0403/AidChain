@@ -1,5 +1,5 @@
 const express = require('express');
-const app = express();
+const app = express(); //Http server instance
 const cors = require('cors');
 const chatbotRoutes = require('./api/chatbotRoute');
 
